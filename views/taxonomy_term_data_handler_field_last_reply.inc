@@ -39,10 +39,10 @@ class taxonomy_term_data_handler_field_last_reply extends views_handler_field {
   }
 
   function render($values) {
-    $forums = forum_forum_load();
+    $forums = forum_ng_forum_load();
     $forum = $forums->forums[$values->tid];
 
-    $last_reply = theme('forum_submitted', array('topic' => $forum->last_post));
+    $last_reply = theme('forum_ng_submitted', array('topic' => $forum->last_post));
     return isset($last_reply) ? $last_reply : 'n/a';
   }
 }

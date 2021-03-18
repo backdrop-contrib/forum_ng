@@ -1,0 +1,10 @@
+{
+    "_config_name": "forum_ng.settings",
+    "forum_ng_nav_vocabulary": "forum",
+    "forum_ng_containers": [],
+    "forum_ng_hot_topic": 15,
+    "forum_ng_per_page": 25,
+    "forum_ng_order": 1,
+    "forum_ng_block_num_active": 5,
+    "forum_ng_block_num_new": 5
+}

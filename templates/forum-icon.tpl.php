@@ -10,8 +10,8 @@
  *   'default', 'closed', or 'sticky'.
  * - $first_new: Indicates whether this is the first topic with new posts.
  *
- * @see template_preprocess_forum_icon()
- * @see theme_forum_icon()
+ * @see template_preprocess_forum_ng_icon()
+ * @see theme_forum_ng_icon()
  *
  * @ingroup themeable
  */

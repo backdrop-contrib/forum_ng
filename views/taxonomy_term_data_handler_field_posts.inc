@@ -3,7 +3,7 @@
 /**
  * @file
  * Contains a Views field handler to take care of displaying reply links to
- * forum forum_posts as fields.
+ * forum forum_ng_posts as fields.
  */
 class taxonomy_term_data_handler_field_posts extends views_handler_field {
   function construct() {
@@ -39,7 +39,7 @@ class taxonomy_term_data_handler_field_posts extends views_handler_field {
   }
 
   function render($values) {
-    $forums = forum_forum_load();
+    $forums = forum_ng_forum_load();
     $forum = $forums->forums[$values->tid];
 
     return isset($forum->num_posts) ? $forum->num_posts : 0;

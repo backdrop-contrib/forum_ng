@@ -8,7 +8,7 @@
 /**
  * Implements hook_views_data_alter().
  */
-function forum_views_data_alter(&$data) {
+function forum_ng_views_data_alter(&$data) {
   // Add reply link field
   $data['taxonomy_term_data']['num_posts'] = array(
     'title' => t('Total posts'),
@@ -53,7 +53,7 @@ function forum_views_data_alter(&$data) {
 /**
  * Implements hook_views_data().
  */
-function forum_views_data() {
+function forum_ng_views_data() {
 
   $data['forum_index']['table']['group'] = t('Forum');
   $data['forum_index']['table']['base'] = array(

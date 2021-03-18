@@ -160,22 +160,22 @@ class ForumTestCase extends BackdropWebTestCase {
     $this->backdropGet('forum');
 
     // Verify row for testing forum.
-    $forum_arg = array(':forum' => 'forum-list-' . $this->forum['tid']);
+    $forum_ng_arg = array(':forum' => 'forum-list-' . $this->forum['tid']);
 
     // Topics cell contains number of topics and number of unread topics.
-    $xpath = $this->buildXPathQuery('//tr[@id=:forum]//td[@class="topics"]', $forum_arg);
+    $xpath = $this->buildXPathQuery('//tr[@id=:forum]//td[@class="topics"]', $forum_ng_arg);
     $topics = $this->xpath($xpath);
     $topics = trim($topics[0]);
     $this->assertEqual($topics, '6', 'Number of topics found.');
 
     // Verify the number of unread topics.
-    $unread_topics = _forum_topics_unread($this->forum['tid'], $this->edit_any_topics_user->uid);
+    $unread_topics = _forum_ng_topics_unread($this->forum['tid'], $this->edit_any_topics_user->uid);
     $unread_topics = format_plural($unread_topics, '1 new', '@count new');
-    $xpath = $this->buildXPathQuery('//tr[@id=:forum]//td[@class="topics"]//a', $forum_arg);
+    $xpath = $this->buildXPathQuery('//tr[@id=:forum]//td[@class="topics"]//a', $forum_ng_arg);
     $this->assertFieldByXPath($xpath, $unread_topics, 'Number of unread topics found.');
 
     // Verify total number of posts in forum.
-    $xpath = $this->buildXPathQuery('//tr[@id=:forum]//td[@class="posts"]', $forum_arg);
+    $xpath = $this->buildXPathQuery('//tr[@id=:forum]//td[@class="posts"]', $forum_ng_arg);
     $this->assertFieldByXPath($xpath, '6', 'Number of posts found.');
 
     // Test loading multiple forum nodes on the front page.
@@ -221,7 +221,7 @@ class ForumTestCase extends BackdropWebTestCase {
    */
   function testAddOrphanTopic() {
     // Must remove forum topics to test creating orphan topics.
-    $vid = config_get('forum.settings', 'forum_nav_vocabulary');
+    $vid = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
     $tree = taxonomy_get_tree($vid);
     foreach ($tree as $term) {
       taxonomy_term_delete($term->tid);
@@ -250,30 +250,30 @@ class ForumTestCase extends BackdropWebTestCase {
 
     // Enable the active forum block.
     $layout = layout_load('default');
-    $layout->addBlock('forum', 'forum_active', 'footer');
+    $layout->addBlock('forum', 'forum_ng_active', 'footer');
     $layout->save();
 
-    $forum_active_selector = "//*[contains(@class,'block-forum-new')]";
+    $forum_ng_active_selector = "//*[contains(@class,'block-forum-new')]";
     $this->backdropGet('node');
-    $elements = $this->xpath($forum_active_selector);
+    $elements = $this->xpath($forum_ng_active_selector);
     $this->assertEqual(count($elements), 1, 'Active forum block found on /node.');
 
     $this->backdropGet('user');
-    $elements = $this->xpath($forum_active_selector);
+    $elements = $this->xpath($forum_ng_active_selector);
     $this->assertEqual(count($elements), 1, 'Active forum block not shown on /user.');
 
     // Enable the new forum block.
     $layout = layout_load('default');
-    $layout->addBlock('forum', 'forum_new', 'footer');
+    $layout->addBlock('forum', 'forum_ng_new', 'footer');
     $layout->save();
 
-    $forum_new_selector = "//*[contains(@class,'block-forum-new')]";
+    $forum_ng_new_selector = "//*[contains(@class,'block-forum-new')]";
     $this->backdropGet('node');
-    $elements = $this->xpath($forum_new_selector);
+    $elements = $this->xpath($forum_ng_new_selector);
     $this->assertEqual(count($elements), 1, 'New forum block found on /node.');
 
     $this->backdropGet('user');
-    $elements = $this->xpath($forum_new_selector);
+    $elements = $this->xpath($forum_ng_new_selector);
     $this->assertEqual(count($elements), 1, 'New forum block not shown on /user.');
 
     // Retrieve forum menu id.
@@ -338,7 +338,7 @@ class ForumTestCase extends BackdropWebTestCase {
    */
   function editForumTaxonomy() {
     // Backup forum taxonomy.
-    $vid = config_get('forum.settings', 'forum_nav_vocabulary');
+    $vid = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
     $original_settings = taxonomy_vocabulary_load($vid);
 
     // Generate a random name/description.
@@ -401,7 +401,7 @@ class ForumTestCase extends BackdropWebTestCase {
     $this->assertRaw(t('Created new @type %term.', array('%term' => $name, '@type' => $type)), format_string('@type was created', array('@type' => ucfirst($type))));
 
     // Verify forum.
-    $term = db_query("SELECT * FROM {taxonomy_term_data} t WHERE t.vocabulary = :vid AND t.name = :name AND t.description = :desc", array(':vid' => config_get('forum.settings', 'forum_nav_vocabulary'), ':name' => $name, ':desc' => $description))->fetchAssoc();
+    $term = db_query("SELECT * FROM {taxonomy_term_data} t WHERE t.vocabulary = :vid AND t.name = :name AND t.description = :desc", array(':vid' => config_get('forum_ng.settings', 'forum_ng_nav_vocabulary'), ':name' => $name, ':desc' => $description))->fetchAssoc();
     $this->assertTrue(!empty($term), 'The ' . $type . ' exists in the database');
 
     // Verify forum hierarchy.
@@ -428,9 +428,9 @@ class ForumTestCase extends BackdropWebTestCase {
     $this->assertResponse(404, 'The forum was not found');
 
     // Assert that the associated term has been removed from the
-    // forum_containers variable.
-    $containers = config_get('forum.settings', 'forum_containers');
-    $this->assertFalse(in_array($tid, $containers), 'The forum_containers variable has been updated.');
+    // forum_ng_containers variable.
+    $containers = config_get('forum_ng.settings', 'forum_ng_containers');
+    $this->assertFalse(in_array($tid, $containers), 'The forum_ng_containers variable has been updated.');
   }
 
   /**
@@ -569,11 +569,11 @@ class ForumTestCase extends BackdropWebTestCase {
       $this->assertRaw(t('Forum topic %title has been updated.', array('%title' => $edit["title"])), 'Forum node was edited');
 
       // Verify topic was moved to a different forum.
-      $forum_tid = db_query("SELECT tid FROM {forum} WHERE nid = :nid AND vid = :vid", array(
+      $forum_ng_tid = db_query("SELECT tid FROM {forum} WHERE nid = :nid AND vid = :vid", array(
         ':nid' => $node->nid,
         ':vid' => $node->vid,
       ))->fetchField();
-      $this->assertTrue($forum_tid == $this->root_forum['tid'], 'The forum topic is linked to a different forum');
+      $this->assertTrue($forum_ng_tid == $this->root_forum['tid'], 'The forum topic is linked to a different forum');
 
       // Delete forum node.
       $this->backdropPost('node/' . $node->nid . '/delete', array(), t('Delete'));

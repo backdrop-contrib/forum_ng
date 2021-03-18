@@ -12,8 +12,8 @@
  * - $topic: An object with the raw data of the post. Potentially unsafe. Be
  *   sure to clean this data before printing.
  *
- * @see template_preprocess_forum_submitted()
- * @see theme_forum_submitted()
+ * @see template_preprocess_forum_ng_submitted()
+ * @see theme_forum_ng_submitted()
  *
  * @ingroup themeable
  */

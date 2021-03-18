@@ -15,14 +15,14 @@
  * @return
  *   A form for creating a new forum.
  *
- * @see forum_menu()
+ * @see forum_ng_menu()
  */
-function forum_form_main($edit = array()) {
+function forum_ng_form_main($edit = array()) {
   $edit = (array) $edit;
   if ((isset($_POST['op']) && $_POST['op'] == t('Delete')) || !empty($_POST['confirm'])) {
-    return backdrop_get_form('forum_confirm_delete', $edit['tid']);
+    return backdrop_get_form('forum_ng_confirm_delete', $edit['tid']);
   }
-  return backdrop_get_form('forum_form_forum', $edit);
+  return backdrop_get_form('forum_ng_form_forum', $edit);
 }
 
 /**
@@ -32,10 +32,10 @@ function forum_form_main($edit = array()) {
  *   (optional) Associative array containing a forum term to be added or edited.
  *   Defaults to an empty array.
  *
- * @see forum_form_submit()
+ * @see forum_ng_form_submit()
  * @ingroup forms
  */
-function forum_form_forum($form, &$form_state, $edit = array()) {
+function forum_ng_form_forum($form, &$form_state, $edit = array()) {
   $edit += array(
     'name' => '',
     'description' => '',
@@ -55,30 +55,30 @@ function forum_form_forum($form, &$form_state, $edit = array()) {
     '#description' => t('Description and guidelines for discussions within this forum.'),
   );
   $form['parent']['#tree'] = TRUE;
-  $form['parent'][0] = _forum_parent_select($edit['tid'], t('Parent'));
+  $form['parent'][0] = _forum_ng_parent_select($edit['tid'], t('Parent'));
   $form['weight'] = array('#type' => 'weight',
     '#title' => t('Weight'),
     '#default_value' => $edit['weight'],
     '#description' => t('Forums are displayed in ascending order by weight (forums with equal weights are displayed alphabetically).'),
   );
 
-  $form['vocabulary'] = array('#type' => 'hidden', '#value' => config_get('forum.settings', 'forum_nav_vocabulary'));
+  $form['vocabulary'] = array('#type' => 'hidden', '#value' => config_get('forum_ng.settings', 'forum_ng_nav_vocabulary'));
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save'));
   if ($edit['tid']) {
     $form['actions']['delete'] = array('#type' => 'submit', '#value' => t('Delete'));
     $form['tid'] = array('#type' => 'hidden', '#value' => $edit['tid']);
   }
-  $form['#submit'][] = 'forum_form_submit';
-  $form['#theme'] = 'forum_form';
+  $form['#submit'][] = 'forum_ng_form_submit';
+  $form['#theme'] = 'forum_ng_form';
 
   return $form;
 }
 
 /**
- * Form submission handler for forum_form_forum().
+ * Form submission handler for forum_ng_form_forum().
  */
-function forum_form_submit($form, &$form_state) {
+function forum_ng_form_submit($form, &$form_state) {
   $term = entity_create('taxonomy_term', $form_state['values']);
 
   $status = taxonomy_term_save($term);
@@ -109,7 +109,7 @@ function forum_form_submit($form, &$form_state) {
  *
  * @ingroup themeable
  */
-function theme_forum_form($variables) {
+function theme_forum_ng_form($variables) {
   return backdrop_render_children($variables['form']);
 }
 
@@ -119,10 +119,10 @@ function theme_forum_form($variables) {
  * @param $tid
  *   ID of the term to be deleted.
  *
- * @see forum_confirm_delete_submit()
+ * @see forum_ng_confirm_delete_submit()
  * @ingroup forms
  */
-function forum_confirm_delete($form, &$form_state, $tid) {
+function forum_ng_confirm_delete($form, &$form_state, $tid) {
   $term = taxonomy_term_load($tid);
 
   $form['tid'] = array('#type' => 'value', '#value' => $tid);
@@ -132,9 +132,9 @@ function forum_confirm_delete($form, &$form_state, $tid) {
 }
 
 /**
- * Form submission handler for forum_confirm_delete().
+ * Form submission handler for forum_ng_confirm_delete().
  */
-function forum_confirm_delete_submit($form, &$form_state) {
+function forum_ng_confirm_delete_submit($form, &$form_state) {
   taxonomy_term_delete($form_state['values']['tid']);
   backdrop_set_message(t('The forum %term and all sub-forums have been deleted.', array('%term' => $form_state['values']['name'])));
   watchdog('content', 'forum: deleted %term and all its sub-forums.', array('%term' => $form_state['values']['name']));
@@ -146,20 +146,30 @@ function forum_confirm_delete_submit($form, &$form_state) {
 /**
  * Form constructor for the forum settings page.
  *
- * @see forum_menu()
+ * @see forum_ng_menu()
  * @see system_settings_form()
  * @ingroup forms
  */
-function forum_admin_settings($form) {
-  $config = config('forum.settings');
+function forum_ng_admin_settings($form) {
+  $config = config('forum_ng.settings');
   $number = backdrop_map_assoc(array(5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 80, 100, 150, 200, 250, 300, 350, 400, 500));
-  $form['forum_hot_topic'] = array('#type' => 'select',
+  $form['forum_ng_hot_topic'] = array(
+    '#type' => 'select',
     '#title' => t('Hot topic threshold'),
-    '#default_value' => $config->get('forum_hot_topic'),
+    '#default_value' => $config->get('forum_ng_hot_topic'),
     '#options' => $number,
     '#description' => t('The number of replies a topic must have to be considered "hot".'),
   );
-  
+
+  // If we had uninstalled the forums, the tables would be empty but we'd still
+  // have the node type and taxonomy. Allow to rebuild.
+  $form['forum_ng_rebuild'] = array(
+    '#type' => 'submit',
+    '#submit' => array('rebuild_forums_submit'),
+    '#value' => t('Rebuild forum table'),
+    '#description' => t('If we had uninstalled the forums, the tables would be empty but still have the node type and taxonomy. Allow to rebuild.'),
+  );
+
   $form['actions']['#type'] = 'actions';
   $form['actions']['submit'] = array(
     '#type' => 'submit',
@@ -169,9 +179,28 @@ function forum_admin_settings($form) {
   return $form;
 }
 
-function forum_admin_settings_submit($form, $form_state) {
-  $config = config('forum.settings');
-  $config->set('forum_hot_topic', $form_state['values']['forum_hot_topic']);
+// function rebuild_forums_validate($form, $form_state) {
+  // Make sure the forum nodes have the right fields.
+
+function rebuild_forums_submit($form, $form_state) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'forum');
+  $result = $query->execute();
+
+  if (isset($result['node'])) {
+    $forum_nids = array_keys($result['node']);
+    $forum_nodes = entity_load_multiple('node', $forum_nids);
+    foreach ($forum_nodes as $node) {
+      forum_ng_node_update($node);
+      _forum_ng_update_forum_ng_index($node->nid);
+    }
+  } 
+}
+
+function forum_ng_admin_settings_submit($form, $form_state) {
+  $config = config('forum_ng.settings');
+  $config->set('forum_ng_hot_topic', $form_state['values']['forum_ng_hot_topic']);
   $config->save();
 }
 
@@ -180,13 +209,13 @@ function forum_admin_settings_submit($form, $form_state) {
  *
  * Returns a form for controlling the hierarchy of existing forums.
  *
- * @see forum_menu()
+ * @see forum_ng_menu()
  * @ingroup forms
  */
-function forum_overview($form, &$form_state) {
+function forum_ng_overview($form, &$form_state) {
   module_load_include('inc', 'taxonomy', 'taxonomy.admin');
-  $config = config('forum.settings');
-  $vid = $config->get('forum_nav_vocabulary');
+  $config = config('forum_ng.settings');
+  $vid = $config->get('forum_ng_nav_vocabulary');
   $vocabulary = taxonomy_vocabulary_load($vid);
   $form = taxonomy_overview_terms($form, $form_state, $vocabulary);
 
@@ -220,7 +249,7 @@ function forum_overview($form, &$form_state) {
  * @return
  *   A select form element.
  */
-function _forum_parent_select($tid, $title) {
+function _forum_ng_parent_select($tid, $title) {
 
   $parents = taxonomy_term_load_parents($tid);
   if ($parents) {
@@ -231,7 +260,7 @@ function _forum_parent_select($tid, $title) {
     $parent = 0;
   }
 
-  $vid = config_get('forum.settings', 'forum_nav_vocabulary');
+  $vid = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
   $children = taxonomy_get_tree($vid, $tid);
 
   // A term can't be the child of itself, nor of its children.
