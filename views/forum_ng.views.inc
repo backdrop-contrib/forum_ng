@@ -37,7 +37,7 @@ function forum_ng_views_data_alter(&$data) {
   );
 
   // Add a relationship handler.
-  $data['taxonomy_term_data']['forum'] = array(
+  $data['taxonomy_term_data']['forum_ng'] = array(
     'title' => t('Forum'),
     'help' => t('Provide a forum'),
     'relationship' => array(

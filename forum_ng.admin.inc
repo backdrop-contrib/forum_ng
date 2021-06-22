@@ -93,7 +93,7 @@ function forum_ng_form_submit($form, &$form_state) {
       cache_clear_all();
       break;
   }
-  $form_state['redirect'] = 'admin/structure/forum';
+  $form_state['redirect'] = 'admin/structure/forum_ng';
   return;
 }
 
@@ -128,7 +128,7 @@ function forum_ng_confirm_delete($form, &$form_state, $tid) {
   $form['tid'] = array('#type' => 'value', '#value' => $tid);
   $form['name'] = array('#type' => 'value', '#value' => $term->name);
 
-  return confirm_form($form, t('Are you sure you want to delete the forum %name?', array('%name' => $term->name)), 'admin/structure/forum', t('Deleting a forum will also delete its sub-forums, if any. To delete posts in this forum, visit <a href="@content">content administration</a> first. This action cannot be undone.', array('@content' => url('admin/content'))), t('Delete'), t('Cancel'));
+  return confirm_form($form, t('Are you sure you want to delete the forum %name?', array('%name' => $term->name)), 'admin/structure/forum_ng', t('Deleting a forum will also delete its sub-forums, if any. To delete posts in this forum, visit <a href="@content">content administration</a> first. This action cannot be undone.', array('@content' => url('admin/content'))), t('Delete'), t('Cancel'));
 }
 
 /**
@@ -139,7 +139,7 @@ function forum_ng_confirm_delete_submit($form, &$form_state) {
   backdrop_set_message(t('The forum %term and all sub-forums have been deleted.', array('%term' => $form_state['values']['name'])));
   watchdog('content', 'forum: deleted %term and all its sub-forums.', array('%term' => $form_state['values']['name']));
 
-  $form_state['redirect'] = 'admin/structure/forum';
+  $form_state['redirect'] = 'admin/structure/forum_ng';
   return;
 }
 
@@ -174,8 +174,8 @@ function forum_ng_admin_settings($form) {
   $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save configuration'),
-  );    
-  
+  );
+
   return $form;
 }
 
@@ -185,7 +185,7 @@ function forum_ng_admin_settings($form) {
 function rebuild_forums_submit($form, $form_state) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'forum');
+    ->entityCondition('bundle', 'forum_ng');
   $result = $query->execute();
 
   if (isset($result['node'])) {
@@ -193,9 +193,9 @@ function rebuild_forums_submit($form, $form_state) {
     $forum_nodes = entity_load_multiple('node', $forum_nids);
     foreach ($forum_nodes as $node) {
       forum_ng_node_update($node);
-      _forum_ng_update_forum_ng_index($node->nid);
+      _forum_ng_update_forum_index($node->nid);
     }
-  } 
+  }
 }
 
 function forum_ng_admin_settings_submit($form, $form_state) {
@@ -215,16 +215,16 @@ function forum_ng_admin_settings_submit($form, $form_state) {
 function forum_ng_overview($form, &$form_state) {
   module_load_include('inc', 'taxonomy', 'taxonomy.admin');
   $config = config('forum_ng.settings');
-  $vid = $config->get('forum_ng_nav_vocabulary');
-  $vocabulary = taxonomy_vocabulary_load($vid);
+  $vocabulary_name = $config->get('forum_ng_nav_vocabulary');
+  $vocabulary = taxonomy_vocabulary_load($vocabulary_name);
   $form = taxonomy_overview_terms($form, $form_state, $vocabulary);
 
   foreach (element_children($form) as $key) {
     if (isset($form[$key]['#term'])) {
       $term = $form[$key]['#term'];
-      $form[$key]['view']['#href'] = 'forum/' . $term['tid'];
+      $form[$key]['view']['#href'] = 'forums/' . $term['tid'];
       $form[$key]['operations']['#links']['edit']['title'] = t('edit forum');
-      $form[$key]['operations']['#links']['edit']['href'] = 'admin/structure/forum/edit/forum/' . $term['tid'];
+      $form[$key]['operations']['#links']['edit']['href'] = 'admin/structure/forum_ng/edit/' . $term['tid'];
     }
   }
 
@@ -234,7 +234,7 @@ function forum_ng_overview($form, &$form_state) {
   // The form needs to have submit and validate handlers set explicitly.
   $form['#theme'] = 'taxonomy_overview_terms';
   $form['#submit'] = array('taxonomy_overview_terms_submit'); // Use the existing taxonomy overview submit handler.
-  $form['#empty_text'] = t('No forums available. <a href="@forum">Add forum</a>.', array('@forum' => url('admin/structure/forum/add/forum')));
+  $form['#empty_text'] = t('No forums available. <a href="@forum">Add forum</a>.', array('@forum' => url('admin/structure/forum_ng/add/forum')));
   return $form;
 }
 
