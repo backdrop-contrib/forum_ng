@@ -203,7 +203,7 @@ function forum_ng_node_view($node, $view_mode) {
       $vocabulary = taxonomy_vocabulary_load($vocabulary_name);
       // Breadcrumb navigation
       $breadcrumb[] = l(t('Home'), NULL);
-      $breadcrumb[] = l($vocabulary->name, 'forum_ng');
+      $breadcrumb[] = l($vocabulary->name, 'forums');
       if ($parents = taxonomy_term_load_parents_all($node->forum_ng_tid)) {
         $parents = array_reverse($parents);
         foreach ($parents as $parent) {
@@ -1209,14 +1209,14 @@ function forum_ng_preprocess_views_view__forum_ngs(&$variables) {
  * Implements hook_views_pre_render().
  */
 function forum_ng_views_pre_render(&$view) {
-  if ($view->name == 'topic') {
+  if ($view->name == 'forum_ng_topic') {
     $parents = taxonomy_term_load_parents_all($view->args[0]);
     unset($parents[0]);
     $parents = array_reverse($parents);
 
     $breadcrumb = array();
     $breadcrumb[] = l(t('Home'), NULL);
-    $breadcrumb[] = l(t('forum_ng'), 'forum_ng');
+    $breadcrumb[] = l(t('Forums'), 'forums');
     if ($parents) {
       foreach ($parents as $parent) {
         $breadcrumb[] = l($parent->name, 'forums/' . $parent->tid);
