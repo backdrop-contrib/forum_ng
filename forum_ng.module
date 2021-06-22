@@ -257,7 +257,7 @@ function forum_ng_node_presave($node) {
     if (!empty($node->forum_ng_taxonomy[$langcode])) {
       $node->forum_ng_tid = $node->forum_ng_taxonomy[$langcode][0]['tid'];
       if (isset($node->nid)) {
-        $old_tid = db_query_range("SELECT f.tid FROM {forum} f INNER JOIN {node} n ON f.vid = n.vid WHERE n.nid = :nid ORDER BY f.vid DESC", 0, 1, array(':nid' => $node->nid))->fetchField();
+        $old_tid = db_query_range("SELECT f.tid FROM {forum_ng} f INNER JOIN {node} n ON f.vid = n.vid WHERE n.nid = :nid ORDER BY f.vid DESC", 0, 1, array(':nid' => $node->nid))->fetchField();
         if ($old_tid && isset($node->forum_ng_tid) && ($node->forum_ng_tid != $old_tid) && !empty($node->shadow)) {
           // A shadow copy needs to be created. Retain new term and add old term.
           $node->forum_ng_taxonomy[$langcode][] = array('tid' => $old_tid);
@@ -272,7 +272,7 @@ function forum_ng_node_presave($node) {
  */
 function forum_ng_node_update($node) {
   if (_forum_ng_node_check_node_type($node)) {
-    if (empty($node->revision) && db_query('SELECT tid FROM {forum} WHERE nid=:nid', array(':nid' => $node->nid))->fetchField()) {
+    if (empty($node->revision) && db_query('SELECT tid FROM {forum_ng} WHERE nid=:nid', array(':nid' => $node->nid))->fetchField()) {
       if (!empty($node->forum_ng_tid)) {
         db_update('forum_ng')
           ->fields(array('tid' => $node->forum_ng_tid))
