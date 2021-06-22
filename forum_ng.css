@@ -17,7 +17,7 @@
 }
 
 .view-forum-ng .forum-name .icon {
-  background-image: url(images/forum-icons.png);
+  background-image: url(images/forum-ng-icons.png);
   background-repeat: no-repeat;
   float: left; /* LTR */
   height: 24px;
@@ -34,7 +34,7 @@
 .view-forum-ng .indent-4 {padding-left:50px;}
 
 .view-forum-ng-topic .topic-title-wrapper div {
-  background-image: url(images/forum-icons.png);
+  background-image: url(images/forum-ng-icons.png);
   background-repeat: no-repeat;
   width: 24px;
   height: 24px;
