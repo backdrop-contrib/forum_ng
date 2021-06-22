@@ -314,7 +314,7 @@
                         "ui_name": "",
                         "operator": "in",
                         "value": {
-                            "forums": "forums"
+                            "forum_ng": "forum_ng"
                         },
                         "group": "1",
                         "exposed": false,
