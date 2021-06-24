@@ -1,11 +1,12 @@
 {
-    "_config_name": "views.view.topic",
-    "name": "topic",
+    "_config_name": "views.view.forum_ng_topic",
+    "name": "forum_ng_topic",
     "description": "",
     "tag": "default",
     "disabled": false,
     "base_table": "node",
     "human_name": "Topics",
+    "module": "forum_ng",
     "core": "1.4.x-dev",
     "display": {
         "default": {
@@ -289,10 +290,43 @@
                         "id": "type",
                         "table": "node",
                         "field": "type",
+                        "relationship": "none",
+                        "group_type": "group",
+                        "ui_name": "",
+                        "operator": "in",
                         "value": {
-                            "forum": "forum"
+                            "forum_ng": "forum_ng"
                         },
-                        "group": 1
+                        "group": 1,
+                        "exposed": false,
+                        "expose": {
+                            "operator_id": false,
+                            "label": "",
+                            "description": "",
+                            "use_operator": false,
+                            "operator": "",
+                            "identifier": "",
+                            "required": false,
+                            "remember": false,
+                            "multiple": false,
+                            "remember_roles": {
+                                "authenticated": "authenticated"
+                            },
+                            "reduce": false
+                        },
+                        "is_grouped": false,
+                        "group_info": {
+                            "label": "",
+                            "description": "",
+                            "identifier": "",
+                            "optional": true,
+                            "widget": "select",
+                            "multiple": false,
+                            "remember": 0,
+                            "default_group": "All",
+                            "default_group_multiple": [],
+                            "group_items": []
+                        }
                     }
                 },
                 "sorts": {
@@ -423,7 +457,7 @@
                         },
                         "validate_options": {
                             "vocabularies": {
-                                "forums": "forums"
+                                "forum_ng": "forum_ng"
                             },
                             "type": "tid",
                             "transform": "1"

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Provides discussion forum_ngs.
+ * Provides discussion forums.
  */
 
 /**
@@ -38,7 +38,7 @@ function forum_ng_theme() {
     ),
     'views_view_table__forum_ngs' => array(
       'arguments' => array('view' => NULL, 'field' => NULL, 'row' => NULL),
-      'template' => 'views-view-table--forum_ngs',
+      'template' => 'views-view-table--forums',
       'base hook' => 'views_view_table',
       'path' => backdrop_get_path('module', 'forum_ng') . '/templates',
       'preprocess functions' => array(
@@ -56,13 +56,13 @@ function forum_ng_theme() {
     ),
     'views_view_field__forum_ngs__description' => array(
       'arguments' => array('view' => NULL, 'field' => NULL, 'row' => NULL),
-      'template' => 'views-view-field--forum_ngs--description',
+      'template' => 'views-view-field--forums--description',
       'base hook' => 'views_view_field',
       'path' => backdrop_get_path('module', 'forum_ng') . '/templates',
     ),
     'views_view_field__forum_ngs__name' => array(
       'arguments' => array('view' => NULL, 'field' => NULL, 'row' => NULL),
-      'template' => 'views-view-field--forum_ngs--name',
+      'template' => 'views-view-field--forums--name',
       'base hook' => 'views_view_field',
       'path' => backdrop_get_path('module', 'forum_ng') . '/templates',
     ),
@@ -80,8 +80,8 @@ function forum_ng_theme() {
  */
 function forum_ng_menu() {
   $items['admin/structure/forum_ng'] = array(
-    'title' => 'forum_ngs',
-    'description' => 'Control forum_ng hierarchy settings.',
+    'title' => 'Forum NG',
+    'description' => 'Control Forum NG hierarchy settings.',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('forum_ng_overview'),
     'access arguments' => array('administer forum_ngs'),
@@ -93,7 +93,7 @@ function forum_ng_menu() {
     'weight' => -10,
   );
   $items['admin/structure/forum_ng/add'] = array(
-    'title' => 'Add forum_ng',
+    'title' => 'Add forum',
     'page callback' => 'forum_ng_form_main',
     'page arguments' => array(3),
     'access arguments' => array('administer forum_ngs'),
@@ -111,10 +111,10 @@ function forum_ng_menu() {
     'parent' => 'admin/structure/forum_ng',
     'file' => 'forum_ng.admin.inc',
   );
-  $items['admin/structure/forum_ng/%taxonomy_term'] = array(
-    'title' => 'Edit forum_ng',
+  $items['admin/structure/forum_ng/edit/%taxonomy_term'] = array(
+    'title' => 'Edit forum',
     'page callback' => 'forum_ng_form_main',
-    'page arguments' => array(3),
+    'page arguments' => array(4),
     'access arguments' => array('administer forum_ngs'),
     'file' => 'forum_ng.admin.inc',
   );
@@ -134,7 +134,7 @@ function forum_ng_menu_local_tasks_alter(&$data, $router_item, $root_path) {
     if ($forum_ng_term) {
       $links = array();
       // Loop through all bundles for forum_ng taxonomy vocabulary field.
-      $field = field_info_field('taxonomy_forums');
+      $field = field_info_field('forum_ng_taxonomy');
       if (!empty($field['bundles']['node'])) {
         foreach ($field['bundles']['node'] as $type) {
           if (node_access('create', $type)) {
@@ -188,7 +188,7 @@ function forum_ng_menu_local_tasks_alter(&$data, $router_item, $root_path) {
  */
 function _forum_ng_node_check_node_type($node) {
   // Fetch information about the forum_ng field.
-  $field = field_info_instance('node', 'taxonomy_forums', $node->type);
+  $field = field_info_instance('node', 'forum_ng_taxonomy', $node->type);
 
   return is_array($field);
 }
@@ -199,15 +199,15 @@ function _forum_ng_node_check_node_type($node) {
 function forum_ng_node_view($node, $view_mode) {
   if (_forum_ng_node_check_node_type($node)) {
     if ($view_mode == 'full' && node_is_page($node)) {
-      $vid = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
-      $vocabulary = taxonomy_vocabulary_load($vid);
+      $vocabulary_name = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
+      $vocabulary = taxonomy_vocabulary_load($vocabulary_name);
       // Breadcrumb navigation
       $breadcrumb[] = l(t('Home'), NULL);
-      $breadcrumb[] = l($vocabulary->name, 'forum_ng');
+      $breadcrumb[] = l($vocabulary->name, 'forums');
       if ($parents = taxonomy_term_load_parents_all($node->forum_ng_tid)) {
         $parents = array_reverse($parents);
         foreach ($parents as $parent) {
-          $breadcrumb[] = l($parent->name, 'forum_ng/' . $parent->tid);
+          $breadcrumb[] = l($parent->name, 'forums/' . $parent->tid);
         }
       }
       backdrop_set_breadcrumb($breadcrumb);
@@ -224,18 +224,18 @@ function forum_ng_node_view($node, $view_mode) {
  */
 function forum_ng_node_validate($node, $form) {
   if (_forum_ng_node_check_node_type($node)) {
-    $langcode = $form['taxonomy_forums']['#language'];
-    if (!empty($node->taxonomy_forums[$langcode])) {
-      foreach ($node->taxonomy_forums[$langcode] as $delta => $item) {
+    $langcode = $form['forum_ng_taxonomy']['#language'];
+    if (!empty($node->forum_ng_taxonomy[$langcode])) {
+      foreach ($node->forum_ng_taxonomy[$langcode] as $delta => $item) {
         // If no term was selected (e.g. when no terms exist yet), remove the
         // item.
         if (empty($item['tid'])) {
-          unset($node->taxonomy_forums[$langcode][$delta]);
+          unset($node->forum_ng_taxonomy[$langcode][$delta]);
           continue;
         }
         $term = taxonomy_term_load($item['tid']);
         if (!$term) {
-          form_set_error('taxonomy_forums', t('Select a forum_ng.'));
+          form_set_error('forum_ng_taxonomy', t('Select a forum_ng.'));
           continue;
         }
       }
@@ -252,15 +252,15 @@ function forum_ng_node_presave($node) {
   if (_forum_ng_node_check_node_type($node)) {
     // Make sure all fields are set properly:
     $node->icon = !empty($node->icon) ? $node->icon : '';
-    reset($node->taxonomy_forums);
-    $langcode = key($node->taxonomy_forums);
-    if (!empty($node->taxonomy_forums[$langcode])) {
-      $node->forum_ng_tid = $node->taxonomy_forums[$langcode][0]['tid'];
+    reset($node->forum_ng_taxonomy);
+    $langcode = key($node->forum_ng_taxonomy);
+    if (!empty($node->forum_ng_taxonomy[$langcode])) {
+      $node->forum_ng_tid = $node->forum_ng_taxonomy[$langcode][0]['tid'];
       if (isset($node->nid)) {
-        $old_tid = db_query_range("SELECT f.tid FROM {forum} f INNER JOIN {node} n ON f.vid = n.vid WHERE n.nid = :nid ORDER BY f.vid DESC", 0, 1, array(':nid' => $node->nid))->fetchField();
+        $old_tid = db_query_range("SELECT f.tid FROM {forum_ng} f INNER JOIN {node} n ON f.vid = n.vid WHERE n.nid = :nid ORDER BY f.vid DESC", 0, 1, array(':nid' => $node->nid))->fetchField();
         if ($old_tid && isset($node->forum_ng_tid) && ($node->forum_ng_tid != $old_tid) && !empty($node->shadow)) {
           // A shadow copy needs to be created. Retain new term and add old term.
-          $node->taxonomy_forums[$langcode][] = array('tid' => $old_tid);
+          $node->forum_ng_taxonomy[$langcode][] = array('tid' => $old_tid);
         }
       }
     }
@@ -272,23 +272,23 @@ function forum_ng_node_presave($node) {
  */
 function forum_ng_node_update($node) {
   if (_forum_ng_node_check_node_type($node)) {
-    if (empty($node->revision) && db_query('SELECT tid FROM {forum} WHERE nid=:nid', array(':nid' => $node->nid))->fetchField()) {
+    if (empty($node->revision) && db_query('SELECT tid FROM {forum_ng} WHERE nid=:nid', array(':nid' => $node->nid))->fetchField()) {
       if (!empty($node->forum_ng_tid)) {
-        db_update('forum')
+        db_update('forum_ng')
           ->fields(array('tid' => $node->forum_ng_tid))
           ->condition('vid', $node->vid)
           ->execute();
       }
       // The node is removed from the forum_ng.
       else {
-        db_delete('forum')
+        db_delete('forum_ng')
           ->condition('nid', $node->nid)
           ->execute();
       }
     }
     else {
       if (!empty($node->forum_ng_tid)) {
-        db_insert('forum')
+        db_insert('forum_ng')
           ->fields(array(
             'tid' => $node->forum_ng_tid,
             'vid' => $node->vid,
@@ -300,11 +300,11 @@ function forum_ng_node_update($node) {
     // If the node has a shadow forum_ng topic, update the record for this
     // revision.
     if (!empty($node->shadow)) {
-      db_delete('forum')
+      db_delete('forum_ng')
         ->condition('nid', $node->nid)
         ->condition('vid', $node->vid)
         ->execute();
-      db_insert('forum')
+      db_insert('forum_ng')
         ->fields(array(
           'nid' => $node->nid,
           'vid' => $node->vid,
@@ -321,7 +321,7 @@ function forum_ng_node_update($node) {
 function forum_ng_node_insert($node) {
   if (_forum_ng_node_check_node_type($node)) {
     if (!empty($node->forum_ng_tid)) {
-      $nid = db_insert('forum')
+      $nid = db_insert('forum_ng')
         ->fields(array(
           'tid' => $node->forum_ng_tid,
           'vid' => $node->vid,
@@ -337,7 +337,7 @@ function forum_ng_node_insert($node) {
  */
 function forum_ng_node_delete($node) {
   if (_forum_ng_node_check_node_type($node)) {
-    db_delete('forum')
+    db_delete('forum_ng')
       ->condition('nid', $node->nid)
       ->execute();
     db_delete('forum_index')
@@ -357,7 +357,7 @@ function forum_ng_node_load($nodes) {
     }
   }
   if (!empty($node_vids)) {
-    $query = db_select('forum', 'f');
+    $query = db_select('forum_ng', 'f');
     $query
       ->fields('f', array('nid', 'tid'))
       ->condition('f.vid', $node_vids);
@@ -401,7 +401,7 @@ function forum_ng_permission() {
  * comment_save() calls hook_comment_publish() for all published comments.
  */
 function forum_ng_comment_publish($comment) {
-  _forum_ng_update_forum_ng_index($comment->nid);
+  _forum_ng_update_forum_index($comment->nid);
 }
 
 /**
@@ -414,7 +414,7 @@ function forum_ng_comment_update($comment) {
   // comment_save() calls hook_comment_publish() for all published comments,
   // so we need to handle all other values here.
   if (!$comment->status) {
-    _forum_ng_update_forum_ng_index($comment->nid);
+    _forum_ng_update_forum_index($comment->nid);
   }
 }
 
@@ -422,14 +422,14 @@ function forum_ng_comment_update($comment) {
  * Implements hook_comment_unpublish().
  */
 function forum_ng_comment_unpublish($comment) {
-  _forum_ng_update_forum_ng_index($comment->nid);
+  _forum_ng_update_forum_index($comment->nid);
 }
 
 /**
  * Implements hook_comment_delete().
  */
 function forum_ng_comment_delete($comment) {
-  _forum_ng_update_forum_ng_index($comment->nid);
+  _forum_ng_update_forum_index($comment->nid);
 }
 
 /**
@@ -438,7 +438,7 @@ function forum_ng_comment_delete($comment) {
 function forum_ng_field_storage_pre_insert($entity_type, $entity, &$skip_fields) {
   if ($entity_type == 'node' && $entity->status && _forum_ng_node_check_node_type($entity)) {
     $query = db_insert('forum_index')->fields(array('nid', 'title', 'tid', 'sticky', 'created', 'comment_count', 'last_comment_timestamp'));
-    foreach ($entity->taxonomy_forums as $language) {
+    foreach ($entity->forum_ng_taxonomy as $language) {
       foreach ($language as $item) {
         $query->values(array(
           'nid' => $entity->nid,
@@ -462,13 +462,16 @@ function forum_ng_field_storage_pre_insert($entity_type, $entity, &$skip_fields)
  * to show a link to the forum_ng View instead of the default 'taxonomy/term/tid'.
  */
 function forum_ng_field_attach_view_alter(&$output, $context) {
+  $vocabulary_name = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
   // Append RDF term mappings on displayed taxonomy links.
   foreach (element_children($output) as $field_name) {
     $element = &$output[$field_name];
     if ($element['#field_type'] == 'taxonomy_term_reference' && $element['#formatter'] == 'taxonomy_term_reference_link') {
       foreach ($element['#items'] as $delta => $item) {
         $term = $item['taxonomy_term'];
-        $element[$delta]['#href'] = 'forum_ng/' . $term->tid;
+        if ($term->vocabulary == $vocabulary_name) {
+          $element[$delta]['#href'] = 'forums/' . $term->tid;
+        }
       }
     }
   }
@@ -493,7 +496,7 @@ function forum_ng_field_storage_pre_update($entity_type, $entity, &$skip_fields)
         db_delete('forum_index')->condition('nid', $entity->nid)->execute();
       }
       $query = db_insert('forum_index')->fields(array('nid', 'title', 'tid', 'sticky', 'created', 'comment_count', 'last_comment_timestamp'));
-      foreach ($entity->taxonomy_forums as $language) {
+      foreach ($entity->forum_ng_taxonomy as $language) {
         foreach ($language as $item) {
           $query->values(array(
             'nid' => $entity->nid,
@@ -508,11 +511,11 @@ function forum_ng_field_storage_pre_update($entity_type, $entity, &$skip_fields)
       }
       $query->execute();
       // The logic for determining last_comment_count is fairly complex, so
-      // call _forum_ng_update_forum_ng_index() too.
-      _forum_ng_update_forum_ng_index($entity->nid);
+      // call _forum_ng_update_forum_index() too.
+      _forum_ng_update_forum_index($entity->nid);
     }
 
-    // When a forum_ng node is unpublished, remove it from the forum_ng_index table.
+    // When a forum_ng node is unpublished, remove it from the forum_index table.
     else {
       db_delete('forum_index')->condition('nid', $entity->nid)->execute();
     }
@@ -524,16 +527,16 @@ function forum_ng_field_storage_pre_update($entity_type, $entity, &$skip_fields)
  * Implements hook_form_FORM_ID_alter() for taxonomy_form_vocabulary().
  */
 function forum_ng_form_taxonomy_form_vocabulary_alter(&$form, &$form_state, $form_id) {
-  $vid = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
-  if (isset($form['vid']['#value']) && $form['vid']['#value'] == $vid) {
+   $vocabulary_name = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
+   if (isset($form['vocabulary']['#value']) && $form['vocabulary']['#value'] == $vocabulary_name) {
     $form['help_forum_ng_vocab'] = array(
       '#markup' => t('This is the designated forum_ng vocabulary. Some of the normal vocabulary options have been removed.'),
       '#weight' => -1,
     );
-    // forum_ng's vocabulary always has single hierarchy. forum_ngs have only one 
+    // Forum NG's vocabulary always has single hierarchy. Forums have only one
     // parent or no parent for root items. By default this value is 0.
     $form['hierarchy']['#value'] = 1;
-    // Do not allow to delete forum_ng's vocabulary.
+    // Do not allow to delete Forum NG's vocabulary.
     $form['actions']['delete']['#access'] = FALSE;
   }
 }
@@ -542,8 +545,8 @@ function forum_ng_form_taxonomy_form_vocabulary_alter(&$form, &$form_state, $for
  * Implements hook_form_FORM_ID_alter() for taxonomy_form_term().
  */
 function forum_ng_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) {
-   $vid = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
-   if (isset($form['vid']['#value']) && $form['vid']['#value'] == $vid) {
+   $vocabulary_name = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
+   if (isset($form['vocabulary']['#value']) && $form['vocabulary']['#value'] == $vocabulary_name) {
     // Hide multiple parents select from forum_ng terms.
     $form['relations']['parent']['#access'] = FALSE;
   }
@@ -553,17 +556,17 @@ function forum_ng_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) 
  * Implements hook_form_BASE_FORM_ID_alter() for node_form().
  */
 function forum_ng_form_node_form_alter(&$form, &$form_state, $form_id) {
-  if (isset($form['taxonomy_forums'])) {
-    $langcode = $form['taxonomy_forums']['#language'];
+  if (isset($form['forum_ng_taxonomy'])) {
+    $langcode = $form['forum_ng_taxonomy']['#language'];
     // Make the vocabulary required for 'real' forum_ng-nodes.
-    $form['taxonomy_forums'][$langcode]['#required'] = TRUE;
-    $form['taxonomy_forums'][$langcode]['#multiple'] = FALSE;
-    if (empty($form['taxonomy_forums'][$langcode]['#default_value'])) {
+    $form['forum_ng_taxonomy'][$langcode]['#required'] = TRUE;
+    $form['forum_ng_taxonomy'][$langcode]['#multiple'] = FALSE;
+    if (empty($form['forum_ng_taxonomy'][$langcode]['#default_value'])) {
       // If there is no default forum_ng already selected, try to get the forum_ng
       // ID from the URL (e.g., if we are on a page like node/add/forum_ng/2, we
       // expect "2" to be the ID of the forum_ng that was requested).
       $requested_forum_ng_id = arg(3);
-      $form['taxonomy_forums'][$langcode]['#default_value'] = is_numeric($requested_forum_ng_id) ? $requested_forum_ng_id : '';
+      $form['forum_ng_taxonomy'][$langcode]['#default_value'] = is_numeric($requested_forum_ng_id) ? $requested_forum_ng_id : '';
     }
   }
   if (isset($form['#node'])) {
@@ -578,7 +581,7 @@ function forum_ng_form_node_form_alter(&$form, &$form_state, $form_id) {
     );
 
     if (!empty($node->nid)) {
-      $forum_ng_terms = $node->taxonomy_forums;
+      $forum_ng_terms = $node->forum_ng_taxonomy;
       // If editing, give option to leave shadows.
       $shadow = (count($forum_ng_terms) > 1);
       $form['shadow'] = array('#type' => 'checkbox', '#title' => t('Leave shadow copy'), '#default_value' => $shadow, '#description' => t('If you move this topic, you can leave a link in the old forum_ng to the new forum_ng.'));
@@ -595,12 +598,12 @@ function forum_ng_form_node_form_alter(&$form, &$form_state, $form_id) {
  */
 function forum_ng_block_info() {
   $blocks['active'] = array(
-    'info' => t('Active forum_ng topics'),
+    'info' => t('Active forum topics'),
     'cache' => BACKDROP_CACHE_CUSTOM,
     'properties' => array('administrative' => TRUE),
   );
   $blocks['new'] = array(
-    'info' => t('New forum_ng topics'),
+    'info' => t('New forum topics'),
     'cache' => BACKDROP_CACHE_CUSTOM,
     'properties' => array('administrative' => TRUE),
   );
@@ -690,7 +693,7 @@ function forum_ng_form($node, $form_state) {
   );
 
   if (!empty($node->nid)) {
-    $forum_ng_terms = $node->taxonomy_forums;
+    $forum_ng_terms = $node->forum_ng_taxonomy;
     // If editing, give option to leave shadows.
     $shadow = (count($forum_ng_terms) > 1);
     $form['shadow'] = array('#type' => 'checkbox', '#title' => t('Leave shadow copy'), '#default_value' => $shadow, '#description' => t('If you move this topic, you can leave a link in the old forum_ng to the new forum_ng.'));
@@ -729,13 +732,13 @@ function forum_ng_forum_load($tid = NULL) {
     return $cache[$tid];
   }
 
-  $vid = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
+  $vocabulary_name = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
 
   // Load and validate the parent term.
   if ($tid) {
     $forum_ng_term = taxonomy_term_load($tid);
 
-    if (!$forum_ng_term || ($forum_ng_term->vocabulary != $vid)) {
+    if (!$forum_ng_term || ($forum_ng_term->vocabulary != $vocabulary_name)) {
       return $cache[$tid] = FALSE;
     }
   }
@@ -750,12 +753,12 @@ function forum_ng_forum_load($tid = NULL) {
   $forum_ng_term->parents = taxonomy_term_load_parents_all($forum_ng_term->tid);
   // Load the tree below.
   $forum_ngs = array();
-  $_forum_ngs = taxonomy_get_tree($vid, $tid);
+  $_forum_ngs = taxonomy_get_tree($vocabulary_name, $tid);
 
   if (count($_forum_ngs)) {
     $query = db_select('node', 'n');
     $query->join('node_comment_statistics', 'ncs', 'n.nid = ncs.nid');
-    $query->join('forum', 'f', 'n.vid = f.vid');
+    $query->join('forum_ng', 'f', 'n.vid = f.vid');
     $query->addExpression('COUNT(n.nid)', 'topic_count');
     $query->addExpression('SUM(ncs.comment_count)', 'comment_count');
     $counts = $query
@@ -781,7 +784,7 @@ function forum_ng_forum_load($tid = NULL) {
     // Query "Last Post" information for this forum_ng.
     $query = db_select('node', 'n');
     $query->join('users', 'u1', 'n.uid = u1.uid');
-    $query->join('forum', 'f', 'n.vid = f.vid AND f.tid = :tid', array(':tid' => $forum_ng->tid));
+    $query->join('forum_ng', 'f', 'n.vid = f.vid AND f.tid = :tid', array(':tid' => $forum_ng->tid));
     $query->join('node_comment_statistics', 'ncs', 'n.nid = ncs.nid');
     $query->join('users', 'u2', 'ncs.last_comment_uid = u2.uid');
     $query->addExpression('CASE ncs.last_comment_uid WHEN 0 THEN ncs.last_comment_name ELSE u2.name END', 'last_comment_name');
@@ -881,7 +884,7 @@ function forum_ng_get_topics($tid, $nid = NULL) {
     $query->join('node_comment_statistics', 'ncs', 'n.nid = ncs.nid');
     $query->fields('ncs', array('cid', 'last_comment_uid', 'last_comment_timestamp', 'comment_count'));
 
-    $query->join('forum_ng_index', 'f', 'f.nid = ncs.nid');
+    $query->join('forum_index', 'f', 'f.nid = ncs.nid');
     $query->addField('f', 'tid', 'forum_ng_tid');
 
     $query->join('forum_ng', 'm', 'm.nid = ncs.nid');
@@ -1011,7 +1014,7 @@ function _forum_ng_get_topic_order($sortby) {
  * @param $nid
  *   The ID of the node to update.
  */
-function _forum_ng_update_forum_ng_index($nid) {
+function _forum_ng_update_forum_index($nid) {
   $count = db_query('SELECT COUNT(cid) FROM {comment} c INNER JOIN {forum_index} i ON c.nid = i.nid WHERE c.nid = :nid AND c.status = :status', array(
     ':nid' => $nid,
     ':status' => COMMENT_PUBLISHED,
@@ -1054,7 +1057,7 @@ function forum_ng_rdf_mapping() {
       'bundle' => 'forum_ng',
       'mapping' => array(
         'rdftype' => array('sioc:Post', 'sioct:BoardPost'),
-        'taxonomy_forums' => array(
+        'forum_ng_taxonomy' => array(
           'type' => 'rel',
         ),
       ),
@@ -1167,7 +1170,7 @@ function forum_ng_preprocess_views_view_field(&$variables) {
     if ($topic->forum_ng_current_tid != $tid) {
       $term = taxonomy_term_load($topic->forum_ng_current_tid);
       $name = $term->name;
-      $variables['topic_moved'] = t('(topic moved to !new_location)', array('!new_location' => l($name, 'forum_ng/' . $topic->forum_ng_current_tid)));
+      $variables['topic_moved'] = t('(topic moved to !new_location)', array('!new_location' => l($name, 'forums/' . $topic->forum_ng_current_tid)));
     }
     $variables['topic_icon'] = theme('forum_ng_icon', array('new_posts' => $topic->new, 'num_posts' => $topic->comment_count, 'comment_mode' => $topic->comment_mode, 'sticky' => $topic->sticky, 'first_new' => $topic->first_new));
   }
@@ -1209,17 +1212,17 @@ function forum_ng_preprocess_views_view__forum_ngs(&$variables) {
  * Implements hook_views_pre_render().
  */
 function forum_ng_views_pre_render(&$view) {
-  if ($view->name == 'topic') {
+  if ($view->name == 'forum_ng_topic') {
     $parents = taxonomy_term_load_parents_all($view->args[0]);
     unset($parents[0]);
     $parents = array_reverse($parents);
 
     $breadcrumb = array();
     $breadcrumb[] = l(t('Home'), NULL);
-    $breadcrumb[] = l(t('forum_ng'), 'forum_ng');
+    $breadcrumb[] = l(t('Forums'), 'forums');
     if ($parents) {
       foreach ($parents as $parent) {
-        $breadcrumb[] = l($parent->name, 'forum_ng/' . $parent->tid);
+        $breadcrumb[] = l($parent->name, 'forums/' . $parent->tid);
       }
     }
     backdrop_set_breadcrumb($breadcrumb);

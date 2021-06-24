@@ -1,6 +1,6 @@
 {
-    "_config_name": "views.view.forums",
-    "name": "forums",
+    "_config_name": "views.view.forum_ng",
+    "name": "forum_ng",
     "description": "",
     "tag": "default",
     "disabled": false,
@@ -107,7 +107,7 @@
                             "alter_text": 0,
                             "text": "",
                             "make_link": 1,
-                            "path": "forum/[tid]",
+                            "path": "forums/[tid]",
                             "absolute": 0,
                             "external": 0,
                             "replace_spaces": 1,
@@ -314,7 +314,7 @@
                         "ui_name": "",
                         "operator": "in",
                         "value": {
-                            "forums": "forums"
+                            "forum_ng": "forum_ng"
                         },
                         "group": "1",
                         "exposed": false,

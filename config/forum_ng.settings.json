@@ -1,6 +1,6 @@
 {
     "_config_name": "forum_ng.settings",
-    "forum_ng_nav_vocabulary": "forum",
+    "forum_ng_nav_vocabulary": "forum_ng",
     "forum_ng_containers": [],
     "forum_ng_hot_topic": 15,
     "forum_ng_per_page": 25,
