@@ -462,13 +462,16 @@ function forum_ng_field_storage_pre_insert($entity_type, $entity, &$skip_fields)
  * to show a link to the forum_ng View instead of the default 'taxonomy/term/tid'.
  */
 function forum_ng_field_attach_view_alter(&$output, $context) {
+  $vocabulary_name = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
   // Append RDF term mappings on displayed taxonomy links.
   foreach (element_children($output) as $field_name) {
     $element = &$output[$field_name];
     if ($element['#field_type'] == 'taxonomy_term_reference' && $element['#formatter'] == 'taxonomy_term_reference_link') {
       foreach ($element['#items'] as $delta => $item) {
         $term = $item['taxonomy_term'];
-        $element[$delta]['#href'] = 'forums/' . $term->tid;
+        if ($term->vocabulary == $vocabulary_name) {
+          $element[$delta]['#href'] = 'forums/' . $term->tid;
+        }
       }
     }
   }
@@ -524,8 +527,8 @@ function forum_ng_field_storage_pre_update($entity_type, $entity, &$skip_fields)
  * Implements hook_form_FORM_ID_alter() for taxonomy_form_vocabulary().
  */
 function forum_ng_form_taxonomy_form_vocabulary_alter(&$form, &$form_state, $form_id) {
-  $vocabulary = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
-  if (isset($form['vocabulary']['#value']) && $form['vocabulary']['#value'] == $vocabulary) {
+   $vocabulary_name = config_get('forum_ng.settings', 'forum_ng_nav_vocabulary');
+   if (isset($form['vocabulary']['#value']) && $form['vocabulary']['#value'] == $vocabulary_name) {
     $form['help_forum_ng_vocab'] = array(
       '#markup' => t('This is the designated forum_ng vocabulary. Some of the normal vocabulary options have been removed.'),
       '#weight' => -1,
