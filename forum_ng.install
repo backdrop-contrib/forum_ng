@@ -115,7 +115,7 @@ function _forum_ng_install_type_create() {
     'is_new' => TRUE,
     'settings' => array(
       'promote_enabled' => FALSE,
-      'comment_enabled' => TRUE,
+      'comment_default' => COMMENT_NODE_OPEN,
     ),
   );
 
