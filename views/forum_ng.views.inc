@@ -9,7 +9,16 @@
  * Implements hook_views_data_alter().
  */
 function forum_ng_views_data_alter(&$data) {
-  // Add reply link field
+  // Add forum level handler
+  $data['taxonomy_term_data']['forum_ng_level'] = array(
+    'title' => t('Forum level'),
+    'help' => t('Level (starting from 0) for this forum term'),
+    'field' => array(
+      'handler' => 'taxonomy_term_data_handler_field_forum_ng_level',
+    ),
+  );
+
+  // Add total posts handler
   $data['taxonomy_term_data']['num_posts'] = array(
     'title' => t('Total posts'),
     'help' => t('Total posts'),
@@ -18,7 +27,7 @@ function forum_ng_views_data_alter(&$data) {
     ),
   );
 
-  // Add reply link field
+  // Add number of topics handler
   $data['taxonomy_term_data']['num_topics'] = array(
     'title' => t('Total topics'),
     'help' => t('Total topics'),
