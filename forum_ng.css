@@ -49,20 +49,6 @@
   border-left-color: #dee2ea;
   border-bottom-color: #dee2ea;
 }
-.view-forum-ng .forum-ng-indent .views-field-name a:after {
-  content: '';
-  display: block;
-  border: 0.125em solid transparent;
-  position: absolute;
-  top: 0.6875em;
-  left: 0.4375em;
-  width: 0.25em;
-  height: 0.25em;
-  transform: rotate(45deg);
-  transform-origin: right top;
-  border-top-color: #dee2ea;
-  border-right-color: #dee2ea;
-}
 
 .view-forum-ng-topic .topic-title-wrapper div {
   background-image: url(images/forum-ng-icons.png);
