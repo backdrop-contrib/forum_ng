@@ -19,7 +19,7 @@
 .view-forum-ng .forum-name .icon {
   background-image: url(images/forum-ng-icons.png);
   background-repeat: no-repeat;
-  float: left; /* LTR */
+  float: right; /* LTR */
   height: 24px;
   margin: 0 9px 0 0; /* LTR */
   width: 24px;
