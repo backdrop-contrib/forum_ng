@@ -1180,15 +1180,27 @@ function template_preprocess_forum_ng_icon(&$variables) {
  * Preprocesses variables for views fields.
  */
 function forum_ng_preprocess_views_view_field(&$variables) {
-  if ($variables['view']->name == 'topic' && $variables['field']->field_alias == 'node_title') {
+  $query = backdrop_get_query_parameters();
+  $forum_tid = (isset($query['forum']) ? check_plain($query['forum']) : 0);
+  if ($variables['view']->name == 'forum_ng_topic') {
     $tid = $variables['view']->argument['tid']->argument;
-    $topic = forum_ng_get_topics($tid, $variables['row']->nid);
-    if ($topic->forum_ng_current_tid != $tid) {
-      $term = taxonomy_term_load($topic->forum_ng_current_tid);
-      $name = $term->name;
-      $variables['topic_moved'] = t('(topic moved to !new_location)', array('!new_location' => l($name, 'forums/stream?forum=' . $topic->forum_ng_current_tid)));
+    if ($variables['field']->field_alias == 'node_title') {
+      $topic = forum_ng_get_topics($tid, $variables['row']->nid);
+      if ($topic->forum_ng_current_tid != $tid) {
+        $term = taxonomy_term_load($topic->forum_ng_current_tid);
+        $name = $term->name;
+        $variables['topic_moved'] = t('(topic moved to !new_location)', array('!new_location' => l($name, 'forums/stream?forum=' . $topic->forum_ng_current_tid)));
+      }
+      $variables['topic_icon'] = theme('forum_ng_icon', array('new_posts' => $topic->new, 'num_posts' => $topic->comment_count, 'comment_mode' => $topic->comment_mode, 'sticky' => $topic->sticky, 'first_new' => $topic->first_new));
     }
-    $variables['topic_icon'] = theme('forum_ng_icon', array('new_posts' => $topic->new, 'num_posts' => $topic->comment_count, 'comment_mode' => $topic->comment_mode, 'sticky' => $topic->sticky, 'first_new' => $topic->first_new));
+    else if ($variables['field']->field == 'forum_ng_taxonomy') {
+      foreach ($variables['view']->result as $delta => $forum) {
+        if ($forum->taxonomy_term_data_field_data_forum_ng_taxonomy_tid == $forum_tid) {
+          // No need to show "Posted in" the same forum we're viewing.
+          $variables['view']->result[$delta]->field_forum_ng_taxonomy[0]['rendered']['#access'] = FALSE ;
+        }
+      }
+    }
   }
 
   if ($variables['view']->name == 'forum_ngs' && $variables['field']->field_alias == 'taxonomy_term_data_name') {

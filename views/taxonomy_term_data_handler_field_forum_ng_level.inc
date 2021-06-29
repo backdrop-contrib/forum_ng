@@ -30,8 +30,17 @@ class taxonomy_term_data_handler_field_forum_ng_level extends views_handler_fiel
   }
 
   function render($values) {
-    $tid = $values->tid;
+    if (!empty($values->tid)) {
+      $tid = $values->tid;
+    }
+    else if (!empty($values->taxonomy_term_data_field_data_forum_ng_taxonomy_tid)) {
+      $tid = $values->taxonomy_term_data_field_data_forum_ng_taxonomy_tid;
+    }
+    else {
+      return 0;
+    }
     $parents = taxonomy_term_load_parents_all($tid);
-    return count($parents) - 1;
+    $levels = count($parents) - 1;
+    return $levels;
   }
 }
