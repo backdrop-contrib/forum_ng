@@ -84,7 +84,7 @@ function forum_ng_menu() {
     'description' => 'Control Forum NG hierarchy settings.',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('forum_ng_overview'),
-    'access arguments' => array('administer forum_ngs'),
+    'access arguments' => array('administer forum_ng'),
     'file' => 'forum_ng.admin.inc',
   );
   $items['admin/structure/forum_ng/list'] = array(
@@ -96,7 +96,7 @@ function forum_ng_menu() {
     'title' => 'Add forum',
     'page callback' => 'forum_ng_form_main',
     'page arguments' => array(3),
-    'access arguments' => array('administer forum_ngs'),
+    'access arguments' => array('administer forum_ng'),
     'type' => MENU_LOCAL_ACTION,
     'parent' => 'admin/structure/forum_ng',
     'file' => 'forum_ng.admin.inc',
@@ -105,7 +105,7 @@ function forum_ng_menu() {
     'title' => 'Settings',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('forum_ng_admin_settings'),
-    'access arguments' => array('administer forum_ngs'),
+    'access arguments' => array('administer forum_ng'),
     'weight' => 5,
     'type' => MENU_LOCAL_TASK,
     'parent' => 'admin/structure/forum_ng',
@@ -115,7 +115,7 @@ function forum_ng_menu() {
     'title' => 'Edit forum',
     'page callback' => 'forum_ng_form_main',
     'page arguments' => array(4),
-    'access arguments' => array('administer forum_ngs'),
+    'access arguments' => array('administer forum_ng'),
     'file' => 'forum_ng.admin.inc',
   );
   return $items;
@@ -375,9 +375,9 @@ function forum_ng_node_load($nodes) {
 function forum_ng_node_info() {
   return array(
     'forum_ng' => array(
-      'name' => t('forum_ng topic'),
+      'name' => t('Forum topic'),
       'base' => 'forum_ng',
-      'description' => t('A <em>forum_ng topic</em> starts a new discussion thread within a forum_ng.'),
+      'description' => t('A <em>forum topic</em> starts a new discussion thread within a forum.'),
       'title_label' => t('Subject'),
     )
   );
@@ -388,8 +388,8 @@ function forum_ng_node_info() {
  */
 function forum_ng_permission() {
   $perms = array(
-    'administer forum_ngs' => array(
-      'title' => t('Administer forum_ngs'),
+    'administer forum_ng' => array(
+      'title' => t('Administer Forum NG'),
     ),
   );
   return $perms;
@@ -585,7 +585,7 @@ function forum_ng_form_node_form_alter(&$form, &$form_state, $form_id) {
       $forum_ng_terms = $node->forum_ng_taxonomy;
       // If editing, give option to leave shadows.
       $shadow = (count($forum_ng_terms) > 1);
-      $form['shadow'] = array('#type' => 'checkbox', '#title' => t('Leave shadow copy'), '#default_value' => $shadow, '#description' => t('If you move this topic, you can leave a link in the old forum_ng to the new forum_ng.'));
+      $form['shadow'] = array('#type' => 'checkbox', '#title' => t('Leave shadow copy'), '#default_value' => $shadow, '#description' => t('If you move this topic, you can leave a link in the old forum to the new forum.'));
       $form['forum_ng_tid'] = array(
         '#type' => 'value',
         '#value' => isset($node->forum_ng_tid) ? $node->forum_ng_tid : NULL,
