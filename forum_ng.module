@@ -580,7 +580,7 @@ function forum_ng_form_node_form_alter(&$form, &$form_state, $form_id) {
       '#weight' => -5
     );
 
-    if (!empty($node->nid)) {
+    if (!empty($node->nid) && $type == 'forum_ng') {
       $forum_ng_terms = $node->forum_ng_taxonomy;
       // If editing, give option to leave shadows.
       $shadow = (count($forum_ng_terms) > 1);
