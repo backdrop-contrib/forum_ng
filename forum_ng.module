@@ -1195,9 +1195,11 @@ function forum_ng_preprocess_views_view_field(&$variables) {
     }
     else if ($variables['field']->field == 'forum_ng_taxonomy') {
       foreach ($variables['view']->result as $delta => $forum) {
-        if ($forum->taxonomy_term_data_field_data_forum_ng_taxonomy_tid == $forum_tid) {
+        if ($variables['view']->result[$delta]->field_forum_ng_taxonomy[0]['raw']['tid'] == $forum_tid) {
           // No need to show "Posted in" the same forum we're viewing.
           $variables['view']->result[$delta]->field_forum_ng_taxonomy[0]['rendered']['#access'] = FALSE ;
+          $variables['view']->result[$delta]->field_forum_ng_taxonomy[0]['rendered']['#markup'] = '';
+          dpm($variables['view']->result[$delta]->field_forum_ng_taxonomy);
         }
       }
     }
