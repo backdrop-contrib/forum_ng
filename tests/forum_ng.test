@@ -65,7 +65,7 @@ class ForumTestCase extends BackdropWebTestCase {
       'access administration pages',
       'administer modules',
       'administer blocks',
-      'administer forums',
+      'administer forum_ng',
       'administer menu',
       'administer taxonomy',
       'create forum content',

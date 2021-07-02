@@ -10,13 +10,13 @@
  */
 function forum_ng_theme() {
   return array(
-    'forum_ngs' => array(
-      'template' => 'forum_ngs',
-      'variables' => array('forum_ngs' => NULL, 'topics' => NULL, 'parents' => NULL, 'tid' => NULL, 'sortby' => NULL, 'forum_ng_per_page' => NULL),
+    'forum_ng' => array(
+      'template' => 'forum_ng',
+      'variables' => array('forum_ng' => NULL, 'topics' => NULL, 'parents' => NULL, 'tid' => NULL, 'sortby' => NULL, 'forum_ng_per_page' => NULL),
     ),
     'forum_ng_list' => array(
       'template' => 'forum_ng-list',
-      'variables' => array('forum_ngs' => NULL, 'parents' => NULL, 'tid' => NULL),
+      'variables' => array('forum_ng' => NULL, 'parents' => NULL, 'tid' => NULL),
     ),
     'forum_ng_topic_list' => array(
       'template' => 'forum_ng-topic-list',
@@ -36,13 +36,13 @@ function forum_ng_theme() {
       'render element' => 'form',
       'file' => 'forum_ng.admin.inc',
     ),
-    'views_view_table__forum_ngs' => array(
+    'views_view_table__forum_ng' => array(
       'arguments' => array('view' => NULL, 'field' => NULL, 'row' => NULL),
       'template' => 'views-view-table--forums',
       'base hook' => 'views_view_table',
       'path' => backdrop_get_path('module', 'forum_ng') . '/templates',
       'preprocess functions' => array(
-        'forum_ng_preprocess_views_view__forum_ngs',
+        'forum_ng_preprocess_views_view__forum_ng',
       ),
     ),
     'views_view_table__topic' => array(
@@ -54,13 +54,13 @@ function forum_ng_theme() {
         'forum_ng_preprocess_views_view__topic',
       ),
     ),
-    'views_view_field__forum_ngs__description' => array(
+    'views_view_field__forum_ng__description' => array(
       'arguments' => array('view' => NULL, 'field' => NULL, 'row' => NULL),
       'template' => 'views-view-field--forums--description',
       'base hook' => 'views_view_field',
       'path' => backdrop_get_path('module', 'forum_ng') . '/templates',
     ),
-    'views_view_field__forum_ngs__name' => array(
+    'views_view_field__forum_ng__name' => array(
       'arguments' => array('view' => NULL, 'field' => NULL, 'row' => NULL),
       'template' => 'views-view-field--forums--name',
       'base hook' => 'views_view_field',
@@ -84,7 +84,7 @@ function forum_ng_menu() {
     'description' => 'Control Forum NG hierarchy settings.',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('forum_ng_overview'),
-    'access arguments' => array('administer forum_ngs'),
+    'access arguments' => array('administer forum_ng'),
     'file' => 'forum_ng.admin.inc',
   );
   $items['admin/structure/forum_ng/list'] = array(
@@ -96,7 +96,7 @@ function forum_ng_menu() {
     'title' => 'Add forum',
     'page callback' => 'forum_ng_form_main',
     'page arguments' => array(3),
-    'access arguments' => array('administer forum_ngs'),
+    'access arguments' => array('administer forum_ng'),
     'type' => MENU_LOCAL_ACTION,
     'parent' => 'admin/structure/forum_ng',
     'file' => 'forum_ng.admin.inc',
@@ -105,7 +105,7 @@ function forum_ng_menu() {
     'title' => 'Settings',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('forum_ng_admin_settings'),
-    'access arguments' => array('administer forum_ngs'),
+    'access arguments' => array('administer forum_ng'),
     'weight' => 5,
     'type' => MENU_LOCAL_TASK,
     'parent' => 'admin/structure/forum_ng',
@@ -115,7 +115,7 @@ function forum_ng_menu() {
     'title' => 'Edit forum',
     'page callback' => 'forum_ng_form_main',
     'page arguments' => array(4),
-    'access arguments' => array('administer forum_ngs'),
+    'access arguments' => array('administer forum_ng'),
     'file' => 'forum_ng.admin.inc',
   );
   return $items;
@@ -375,9 +375,9 @@ function forum_ng_node_load($nodes) {
 function forum_ng_node_info() {
   return array(
     'forum_ng' => array(
-      'name' => t('forum_ng topic'),
+      'name' => t('Forum topic'),
       'base' => 'forum_ng',
-      'description' => t('A <em>forum_ng topic</em> starts a new discussion thread within a forum_ng.'),
+      'description' => t('A <em>forum topic</em> starts a new discussion thread within a forum.'),
       'title_label' => t('Subject'),
     )
   );
@@ -388,8 +388,8 @@ function forum_ng_node_info() {
  */
 function forum_ng_permission() {
   $perms = array(
-    'administer forum_ngs' => array(
-      'title' => t('Administer forum_ngs'),
+    'administer forum_ng' => array(
+      'title' => t('Administer Forum NG'),
     ),
   );
   return $perms;
@@ -459,7 +459,7 @@ function forum_ng_field_storage_pre_insert($entity_type, $entity, &$skip_fields)
 /**
  * Implements hook_field_attach_view_alter().
  *
- * Modify the output of the rendered forum_ngs taxonomy term field on node display
+ * Modify the output of the rendered forum_ng taxonomy term field on node display
  * to show a link to the forum_ng View instead of the default 'taxonomy/term/tid'.
  */
 function forum_ng_field_attach_view_alter(&$output, $context) {
@@ -471,7 +471,12 @@ function forum_ng_field_attach_view_alter(&$output, $context) {
       foreach ($element['#items'] as $delta => $item) {
         $term = $item['taxonomy_term'];
         if ($term->vocabulary == $vocabulary_name) {
-          $element[$delta]['#href'] = 'forums/stream?forum=' . $term->tid;
+          $element[$delta]['#href'] = 'forums/stream';
+          $element[$delta]['#options'] = array(
+            'query' => array(
+              'forum' => $term->tid,
+            ),
+          );
         }
       }
     }
@@ -585,7 +590,7 @@ function forum_ng_form_node_form_alter(&$form, &$form_state, $form_id) {
       $forum_ng_terms = $node->forum_ng_taxonomy;
       // If editing, give option to leave shadows.
       $shadow = (count($forum_ng_terms) > 1);
-      $form['shadow'] = array('#type' => 'checkbox', '#title' => t('Leave shadow copy'), '#default_value' => $shadow, '#description' => t('If you move this topic, you can leave a link in the old forum_ng to the new forum_ng.'));
+      $form['shadow'] = array('#type' => 'checkbox', '#title' => t('Leave shadow copy'), '#default_value' => $shadow, '#description' => t('If you move this topic, you can leave a link in the old forum to the new forum.'));
       $form['forum_ng_tid'] = array(
         '#type' => 'value',
         '#value' => isset($node->forum_ng_tid) ? $node->forum_ng_tid : NULL,
@@ -708,10 +713,10 @@ function forum_ng_form($node, $form_state) {
 }
 
 /**
- * Returns a tree of all forum_ngs for a given taxonomy term ID.
+ * Returns a tree of all forum_ng for a given taxonomy term ID.
  *
  * @param $tid
- *   (optional) Taxonomy term ID of the forum_ng. If not given all forum_ngs will be
+ *   (optional) Taxonomy term ID of the forum_ng. If not given all forum_ng will be
  *   returned.
  *
  * @return
@@ -719,7 +724,7 @@ function forum_ng_form($node, $form_state) {
  *   - num_topics: Number of topics in the forum_ng.
  *   - num_posts: Total number of posts in all topics.
  *   - last_post: Most recent post for the forum_ng.
- *   - forum_ngs: An array of child forum_ngs.
+ *   - forum_ng: An array of child forum_ng.
  */
 function forum_ng_forum_load($tid = NULL) {
   $cache = &backdrop_static(__FUNCTION__, array());
@@ -941,7 +946,7 @@ function forum_ng_get_topics($tid, $nid = NULL) {
       $last_reply->uid = $topic->last_comment_uid;
       $topic->last_reply = $last_reply;
     }
-    // Store all the forum_ngs where this topic is listed. This is written with the
+    // Store all the forums where this topic is listed. This is written with the
     // understanding that the topic can be in more than two places, otherwise
     // dont need the array. Will need to check.
     $topic->forum_ng_tids[] = $topic->forum_ng_tid;
@@ -1065,7 +1070,7 @@ function forum_ng_rdf_mapping() {
     ),
     array(
       'type' => 'taxonomy_term',
-      'bundle' => 'forum_ngs',
+      'bundle' => 'forum_ng',
       'mapping' => array(
         'rdftype' => array('sioc:forum_ng'),
       ),
@@ -1199,13 +1204,12 @@ function forum_ng_preprocess_views_view_field(&$variables) {
           // No need to show "Posted in" the same forum we're viewing.
           $variables['view']->result[$delta]->field_forum_ng_taxonomy[0]['rendered']['#access'] = FALSE ;
           $variables['view']->result[$delta]->field_forum_ng_taxonomy[0]['rendered']['#markup'] = '';
-          dpm($variables['view']->result[$delta]->field_forum_ng_taxonomy);
         }
       }
     }
   }
 
-  if ($variables['view']->name == 'forum_ngs' && $variables['field']->field_alias == 'taxonomy_term_data_name') {
+  if ($variables['view']->name == 'forum_ng' && $variables['field']->field_alias == 'taxonomy_term_data_name') {
     global $user;
     if (_forum_ng_topics_unread($variables['row']->tid, $user->uid)) {
       $variables['icon_class'] = 'new';
@@ -1221,10 +1225,10 @@ function forum_ng_preprocess_views_view_field(&$variables) {
 /**
  * Preprocesses variables for forum_ng list.
  */
-function forum_ng_preprocess_views_view__forum_ngs(&$variables) {
+function forum_ng_preprocess_views_view__forum_ng(&$variables) {
   foreach ($variables['rows'] as $row_count => $row) {
     $tid = $variables['result'][$row_count]->tid;
-    if (taxonomy_term_load_children($tid, 'forum_ngs')) {
+    if (taxonomy_term_load_children($tid, 'forum_ng')) {
       $variables['row_classes'][$row_count][] = 'parent-row';
     }
     $indent = count(taxonomy_term_load_parents_all($tid)) - 1;
