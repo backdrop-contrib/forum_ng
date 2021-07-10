@@ -381,6 +381,52 @@ function forum_ng_node_info() {
     )
   );
 }
+ 
+/**
+ * Implements hook_token_info().
+ */
+function forum_ng_token_info() {
+  $info['tokens']['node']['forum-ng-path'] = array(
+    'name' => t('Forum NG path tree'),
+    'description' => t('The hierarchical forum tree as a path.'),
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function forum_ng_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = array();
+
+  if ($type == 'node' && !empty($data['node'])) {
+    $node = $data['node'];
+
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'forum-ng-path':
+         $tid = field_get_value($node, 'forum_ng_taxonomy', 'tid');
+          if ($parents = taxonomy_term_load_parents_all($tid)) {
+            $parents = array_reverse($parents);
+            foreach ($parents as $term) {
+              $parent_list[$term->tid] = $term->label();
+            }
+            module_load_include('inc', 'path');
+            $values = array();
+            foreach ($parent_list as $value) {
+              $value = path_clean_string((string) $value);
+              $values[] = $value;
+            }
+            $replacements[$original] = implode('/', $values);
+          }
+          break;
+      }
+    }
+  }
+
+  return $replacements;
+}
 
 /**
  * Implements hook_permission().
