@@ -2,8 +2,8 @@
 
 /**
  * @file
- * Contains a Views field handler to take care of displaying reply links to
- * forum forum_ng_posts as fields.
+ * Contains a Views field handler to take care of displaying the number of
+ * topics in a particular forum.
  */
 class taxonomy_term_data_handler_field_topics extends views_handler_field {
   function construct() {

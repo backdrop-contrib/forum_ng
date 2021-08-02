@@ -1,12 +1,12 @@
 {
     "_config_name": "views.view.forum_ng",
     "name": "forum_ng",
+    "module": "forum_ng",
     "description": "",
     "tag": "default",
     "disabled": false,
     "base_table": "taxonomy_term_data",
     "human_name": "Forum list",
-    "core": "1.4.x-dev",
     "display": {
         "default": {
             "display_title": "Master",
@@ -107,7 +107,7 @@
                             "alter_text": 0,
                             "text": "",
                             "make_link": 1,
-                            "path": "forums/[tid]",
+                            "path": "forums/stream?forum=[tid]",
                             "absolute": 0,
                             "external": 0,
                             "replace_spaces": 1,
@@ -156,8 +156,8 @@
                         "label": "",
                         "exclude": 0,
                         "alter": {
-                            "alter_text": 0,
-                            "text": "",
+                            "alter_text": 1,
+                            "text": "<div class=\"small\">[description]</div>",
                             "make_link": 0,
                             "path": "",
                             "absolute": 0,
@@ -302,6 +302,160 @@
                         "empty_zero": 0,
                         "hide_alter_empty": 1,
                         "text": ""
+                    },
+                    "name_1": {
+                        "id": "name_1",
+                        "table": "taxonomy_term_data",
+                        "field": "name",
+                        "relationship": "parent",
+                        "group_type": "group",
+                        "ui_name": "",
+                        "label": "",
+                        "exclude": 1,
+                        "alter": {
+                            "alter_text": 0,
+                            "text": "",
+                            "make_link": 0,
+                            "path": "",
+                            "absolute": 0,
+                            "external": 0,
+                            "replace_spaces": 0,
+                            "path_case": "none",
+                            "trim_whitespace": 0,
+                            "alt": "",
+                            "rel": "",
+                            "link_class": "",
+                            "prefix": "",
+                            "suffix": "",
+                            "target": "",
+                            "nl2br": 0,
+                            "max_length": "",
+                            "word_boundary": 1,
+                            "ellipsis": 1,
+                            "more_link": 0,
+                            "more_link_text": "",
+                            "more_link_path": "",
+                            "strip_tags": 0,
+                            "trim": 0,
+                            "preserve_tags": "",
+                            "html": 0
+                        },
+                        "element_type": "",
+                        "element_class": "",
+                        "element_label_type": "",
+                        "element_label_class": "",
+                        "element_label_colon": false,
+                        "element_wrapper_type": "",
+                        "element_wrapper_class": "",
+                        "element_default_classes": 1,
+                        "empty": "",
+                        "hide_empty": 0,
+                        "empty_zero": 0,
+                        "hide_alter_empty": 1,
+                        "link_to_taxonomy": 0,
+                        "convert_spaces": 0
+                    },
+                    "forum_ng_level": {
+                        "id": "forum_ng_level",
+                        "table": "taxonomy_term_data",
+                        "field": "forum_ng_level",
+                        "relationship": "none",
+                        "group_type": "group",
+                        "ui_name": "Child level class",
+                        "label": "",
+                        "exclude": 1,
+                        "alter": {
+                            "alter_text": 1,
+                            "text": "forum-ng-indent-[forum_ng_level]",
+                            "make_link": 0,
+                            "path": "",
+                            "absolute": 0,
+                            "external": 0,
+                            "replace_spaces": 0,
+                            "path_case": "none",
+                            "trim_whitespace": 0,
+                            "alt": "",
+                            "rel": "",
+                            "link_class": "",
+                            "prefix": "",
+                            "suffix": "",
+                            "target": "",
+                            "nl2br": 0,
+                            "max_length": "",
+                            "word_boundary": 1,
+                            "ellipsis": 1,
+                            "more_link": 0,
+                            "more_link_text": "",
+                            "more_link_path": "",
+                            "strip_tags": 0,
+                            "trim": 0,
+                            "preserve_tags": "",
+                            "html": 0
+                        },
+                        "element_type": "",
+                        "element_class": "",
+                        "element_label_type": "",
+                        "element_label_class": "",
+                        "element_label_colon": false,
+                        "element_wrapper_type": "",
+                        "element_wrapper_class": "",
+                        "element_default_classes": 1,
+                        "empty": "",
+                        "hide_empty": 0,
+                        "empty_zero": 0,
+                        "hide_alter_empty": 1,
+                        "level": "0"
+                    },
+                    "forum_ng_level_1": {
+                        "id": "forum_ng_level_1",
+                        "table": "taxonomy_term_data",
+                        "field": "forum_ng_level",
+                        "relationship": "none",
+                        "group_type": "group",
+                        "ui_name": "Basic indent class",
+                        "label": "",
+                        "exclude": 1,
+                        "alter": {
+                            "alter_text": 1,
+                            "text": "forum-ng-indent",
+                            "make_link": 0,
+                            "path": "",
+                            "absolute": 0,
+                            "external": 0,
+                            "replace_spaces": 0,
+                            "path_case": "none",
+                            "trim_whitespace": 0,
+                            "alt": "",
+                            "rel": "",
+                            "link_class": "",
+                            "prefix": "",
+                            "suffix": "",
+                            "target": "",
+                            "nl2br": 0,
+                            "max_length": "",
+                            "word_boundary": 1,
+                            "ellipsis": 1,
+                            "more_link": 0,
+                            "more_link_text": "",
+                            "more_link_path": "",
+                            "strip_tags": 0,
+                            "trim": 0,
+                            "preserve_tags": "",
+                            "html": 0
+                        },
+                        "element_type": "",
+                        "element_class": "",
+                        "element_label_type": "",
+                        "element_label_class": "",
+                        "element_label_colon": false,
+                        "element_wrapper_type": "",
+                        "element_wrapper_class": "",
+                        "element_default_classes": 0,
+                        "empty": "",
+                        "hide_empty": 1,
+                        "empty_zero": 1,
+                        "hide_alter_empty": 1,
+                        "level": 0
                     }
                 },
                 "filters": {
@@ -316,7 +470,7 @@
                         "value": {
                             "forum_ng": "forum_ng"
                         },
-                        "group": "1",
+                        "group": 1,
                         "exposed": false,
                         "expose": {
                             "operator_id": false,
@@ -366,7 +520,7 @@
                 "title": "Forum list",
                 "style_options": {
                     "grouping": [],
-                    "row_class": "",
+                    "row_class": "[forum_ng_level] [forum_ng_level_1]",
                     "default_row_class": 1,
                     "row_class_special": 1,
                     "override": 1,
@@ -379,7 +533,10 @@
                         "description": "name",
                         "num_posts": "num_posts",
                         "num_topics": "num_topics",
-                        "last_reply": "last_reply"
+                        "last_reply": "last_reply",
+                        "name_1": "name_1",
+                        "forum_ng_level": "forum_ng_level",
+                        "forum_ng_level_1": "forum_ng_level_1"
                     },
                     "info": {
                         "tid": {
@@ -415,24 +572,59 @@
                             "align": "",
                             "separator": "",
                             "empty_column": 0
+                        },
+                        "name_1": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "forum_ng_level": {
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "forum_ng_level_1": {
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
                         }
                     },
                     "default": "-1",
                     "empty_table": 0
                 },
                 "group_by": 0,
-                "relationships": []
+                "relationships": {
+                    "parent": {
+                        "id": "parent",
+                        "table": "taxonomy_term_hierarchy",
+                        "field": "parent",
+                        "relationship": "none",
+                        "group_type": "group",
+                        "ui_name": "",
+                        "label": "Parent",
+                        "required": 0
+                    }
+                },
+                "filter_groups": {
+                    "operator": "AND",
+                    "groups": {
+                        "1": "AND"
+                    }
+                }
             }
         },
         "page": {
-            "display_title": "Page",
+            "display_title": "Main Page",
             "display_plugin": "page",
             "display_options": {
                 "query": {
                     "type": "views_query",
                     "options": []
                 },
-                "path": "forums"
+                "path": "forums",
+                "display_description": ""
             }
         }
     }

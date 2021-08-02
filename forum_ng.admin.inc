@@ -222,7 +222,8 @@ function forum_ng_overview($form, &$form_state) {
   foreach (element_children($form) as $key) {
     if (isset($form[$key]['#term'])) {
       $term = $form[$key]['#term'];
-      $form[$key]['view']['#href'] = 'forums/' . $term['tid'];
+      $form[$key]['view']['#href'] = 'forums/stream';
+      $form[$key]['view']['#options'] = array('query' => array('forum' => $term['tid']));
       $form[$key]['operations']['#links']['edit']['title'] = t('edit forum');
       $form[$key]['operations']['#links']['edit']['href'] = 'admin/structure/forum_ng/edit/' . $term['tid'];
     }
