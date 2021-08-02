@@ -20,7 +20,7 @@ function forum_ng_install() {
   // Set a default path pattern for forum_ng nodes.
   if (module_exists('path')) {
     $config = config('path.settings');
-    $config->set('node_forum_ng_pattern', 'thread/[node:title]');
+    $config->set('node_forum_ng_pattern', 'forums/[node:forum-ng-path]/[node:title]');
 
     $config->save();
   }
