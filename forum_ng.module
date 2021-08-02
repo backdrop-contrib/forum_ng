@@ -1139,8 +1139,6 @@ function template_preprocess_forum_ng_submitted(&$variables) {
     }
     $variables['author'] = theme('username', array('account' => $variables['topic']));
   }
-  else {
-  }
   $variables['time'] = isset($variables['topic']->created) ? format_interval(REQUEST_TIME - $variables['topic']->created) : '';
 }
 
