@@ -1177,13 +1177,34 @@ function template_preprocess_forum_ng_submitted(&$variables) {
   if (isset($variables['topic']->uid)) {
     $author = user_load($variables['topic']->uid);
     if (!empty($author->picture->uri)) {
+      $filepath = $author->picture->uri;
+    }
+    else {
+      $user_picture_default = config_get('system.core', 'user_picture_default');
+      if (file_valid_uri($user_picture_default)) {
+        $fileuri = $user_picture_default;
+      }
+      elseif (!empty($user_picture_default)) {
+        $filepath = $user_picture_default;
+      }
+    }
+    $alt = t("@user's picture", array('@user' => user_format_name($author)));
+    if (!empty($fileuri)) {
       $variables['author_picture'] = theme('image_style', (array(
         'style_name' => 'thumbnail',
-        'uri' => $author->picture->uri,
-        'alt' => $author->name . t('\'s picture'),
+        'uri' => $fileuri,
+        'alt' => $alt,
+      )));
+    }
+    elseif (!empty($filepath)) {
+      $variables['author_picture'] = theme('image', (array(
+        'path' => $filepath,
+        'alt' => $alt,
       )));
     }
     $variables['author'] = theme('username', array('account' => $variables['topic']));
+  }
+  else {
   }
   $variables['time'] = isset($variables['topic']->created) ? format_interval(REQUEST_TIME - $variables['topic']->created) : '';
 }
