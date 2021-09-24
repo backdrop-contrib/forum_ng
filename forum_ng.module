@@ -130,7 +130,7 @@ function forum_ng_menu_local_tasks_alter(&$data, $router_item, $root_path) {
    // Add action link to 'node/add/forum_ng' on 'forums/' sub-pages.
   if ($root_path == 'forums' || $root_path == 'forums/stream') {
     $query = backdrop_get_query_parameters();
-    $tid = (isset($query['forum']) ? check_plain($query['forum']) : 0);
+    $tid = (isset($query['forum']) ? (int)($query['forum']) : 0);
     $forum_ng_term = forum_ng_forum_load($tid);
     if ($forum_ng_term) {
       $links = array();
