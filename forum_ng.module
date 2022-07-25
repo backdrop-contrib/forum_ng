@@ -620,27 +620,27 @@ function forum_ng_form_node_form_alter(&$form, &$form_state, $form_id) {
       $requested_forum_ng_id = arg(3);
       $form['forum_ng_taxonomy'][$langcode]['#default_value'] = is_numeric($requested_forum_ng_id) ? $requested_forum_ng_id : '';
     }
-  }
-  if (isset($form['#node'])) {
-    $node = $form['#node'];
-    $type = node_type_get_type($node);
-    $form['title'] = array(
-      '#type' => 'textfield',
-      '#title' => check_plain($type->title_label),
-      '#default_value' => !empty($node->title) ? $node->title : '',
-      '#required' => TRUE,
-      '#weight' => -5
-    );
-
-    if (!empty($node->nid) && $type == 'forum_ng') {
-      $forum_ng_terms = $node->forum_ng_taxonomy;
-      // If editing, give option to leave shadows.
-      $shadow = (count($forum_ng_terms) > 1);
-      $form['shadow'] = array('#type' => 'checkbox', '#title' => t('Leave shadow copy'), '#default_value' => $shadow, '#description' => t('If you move this topic, you can leave a link in the old forum to the new forum.'));
-      $form['forum_ng_tid'] = array(
-        '#type' => 'value',
-        '#value' => isset($node->forum_ng_tid) ? $node->forum_ng_tid : NULL,
+    if (isset($form['#node'])) {
+      $node = $form['#node'];
+      $type = node_type_get_type($node);
+      $form['title'] = array(
+        '#type' => 'textfield',
+        '#title' => check_plain($type->title_label),
+        '#default_value' => !empty($node->title) ? $node->title : '',
+        '#required' => TRUE,
+        '#weight' => -5
       );
+
+      if (!empty($node->nid) && $type == 'forum_ng') {
+        $forum_ng_terms = $node->forum_ng_taxonomy;
+        // If editing, give option to leave shadows.
+        $shadow = (count($forum_ng_terms) > 1);
+        $form['shadow'] = array('#type' => 'checkbox', '#title' => t('Leave shadow copy'), '#default_value' => $shadow, '#description' => t('If you move this topic, you can leave a link in the old forum to the new forum.'));
+        $form['forum_ng_tid'] = array(
+          '#type' => 'value',
+          '#value' => isset($node->forum_ng_tid) ? $node->forum_ng_tid : NULL,
+        );
+      }
     }
   }
 }
