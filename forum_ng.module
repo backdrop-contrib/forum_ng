@@ -1251,8 +1251,9 @@ function forum_ng_preprocess_views_view_field(&$variables) {
   $query = backdrop_get_query_parameters();
   $forum_tid = (isset($query['forum']) ? check_plain($query['forum']) : 0);
   if ($variables['view']->name == 'forum_ng_topic') {
-    $tid = $variables['view']->argument['tid']->argument;
-    if ($variables['field']->field_alias == 'node_title') {
+    if ($variables['field']->field_alias == 'node_title' && !empty($variables['view']->argument)) {
+      $tid = $variables['view']->argument['tid']->argument;
+      dpm($tid);
       $topic = forum_ng_get_topics($tid, $variables['row']->nid);
       if ($topic->forum_ng_current_tid != $tid) {
         $term = taxonomy_term_load($topic->forum_ng_current_tid);
