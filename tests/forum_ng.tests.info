@@ -1,0 +1,12 @@
+[ForumNGTestCase]
+name = Test Forum NG
+description = Provides automated tests for the Forum NG module.
+group = Forum
+file = forum_ng.test
+
+[ForumNGIndexTestCase]
+name = Test Forum NG Index
+description = Tests the Forum NG index listing.
+group = Forum
+file = forum_ng.test
+
