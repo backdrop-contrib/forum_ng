@@ -92,7 +92,7 @@ class ForumNGTestCase extends BackdropWebTestCase {
 
     // Disable the Forum module.
     $edit = array();
-    $edit['modules[Forum][forum][enable]'] = FALSE;
+    $edit['modules[Forum][forum_ng][enable]'] = FALSE;
     $this->backdropPost('admin/modules', $edit, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'Modules status has been updated.');
     module_list(TRUE);
@@ -101,7 +101,7 @@ class ForumNGTestCase extends BackdropWebTestCase {
     // Attempt to re-enable the Forum module and ensure it does not try to
     // recreate the forum_ng_taxonomy field.
     $edit = array();
-    $edit['modules[Forum][forum][enable]'] = 'forum_ng';
+    $edit['modules[Forum][forum_ng][enable]'] = 'forum_ng';
     $this->backdropPost('admin/modules', $edit, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'), 'Modules status has been updated.');
     module_list(TRUE);
@@ -113,7 +113,7 @@ class ForumNGTestCase extends BackdropWebTestCase {
    */
   function testForum() {
     //Check that the basic forum install creates a default forum topic
-    $this->backdropGet("/forum");
+    $this->backdropGet("/forums");
     // Look for the "General discussion" default forum
     $this->assertText(t("General discussion"), "Found the default forum at the /forum listing");
 
@@ -250,11 +250,11 @@ class ForumNGTestCase extends BackdropWebTestCase {
 
     // Enable the active forum block.
     $layout = layout_load('default');
-    $layout->addBlock('forum_ng', 'forum_ng_active', 'footer');
+    $layout->addBlock('forum_ng', 'active', 'footer');
     $layout->save();
 
-    $forum_ng_active_selector = "//*[contains(@class,'block-forum-new')]";
-    $this->backdropGet('node');
+    $forum_ng_active_selector = "//*[contains(@class,'block-forum-ng-active')]";
+    $this->backdropGet('node/1');
     $elements = $this->xpath($forum_ng_active_selector);
     $this->assertEqual(count($elements), 1, 'Active forum block found on /node.');
 
@@ -264,11 +264,11 @@ class ForumNGTestCase extends BackdropWebTestCase {
 
     // Enable the new forum block.
     $layout = layout_load('default');
-    $layout->addBlock('forum_ng', 'forum_ng_new', 'footer');
+    $layout->addBlock('forum_ng', 'new', 'footer');
     $layout->save();
 
-    $forum_ng_new_selector = "//*[contains(@class,'block-forum-new')]";
-    $this->backdropGet('node');
+    $forum_ng_new_selector = "//*[contains(@class,'block-forum-ng-new')]";
+    $this->backdropGet('node/1');
     $elements = $this->xpath($forum_ng_new_selector);
     $this->assertEqual(count($elements), 1, 'New forum block found on /node.');
 
@@ -351,21 +351,23 @@ class ForumNGTestCase extends BackdropWebTestCase {
     );
 
     // Edit the vocabulary.
-    $this->backdropPost('admin/structure/taxonomy/' . $original_settings->machine_name . '/edit', $edit, t('Save'));
+    $this->backdropPost('admin/structure/taxonomy/' . $original_settings->machine_name . '/configure', $edit, t('Save vocabulary'));
     $this->assertResponse(200);
     $this->assertRaw(t('Updated vocabulary %name.', array('%name' => $title)), 'Vocabulary was edited');
 
     // Grab the newly edited vocabulary.
     entity_get_controller('taxonomy_term')->resetCache();
+    backdrop_static_reset('taxonomy_vocabulary_load_multiple');
     $current_settings = taxonomy_vocabulary_load($vid);
 
     // Make sure we actually edited the vocabulary properly.
+    debug($current_settings);
     $this->assertEqual($current_settings->name, $title, 'The name was updated');
     $this->assertEqual($current_settings->description, $description, 'The description was updated');
 
     // Restore the original vocabulary.
     taxonomy_vocabulary_save($original_settings);
-    backdrop_static_reset('taxonomy_vocabulary_load');
+    backdrop_static_reset('taxonomy_vocabulary_load_multiple');
     $current_settings = taxonomy_vocabulary_load($vid);
     $this->assertEqual($current_settings->name, $original_settings->name, 'The original vocabulary settings were restored');
   }
