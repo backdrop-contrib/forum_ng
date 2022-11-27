@@ -177,6 +177,12 @@ function forum_ng_menu_local_tasks_alter(&$data, $router_item, $root_path) {
   }
 }
 
+function forum_ng_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'views_exposed_form' && !empty($form_state['input']['forum']) && $form_state['input']['forum'] != 'All' && !taxonomy_term_load($form_state['input']['forum'])) {
+    $form_state['input']['forum'] = 'All';
+    backdrop_set_message(t('The forum was not found.'), 'warning');
+  } 
+}
 
 /**
  * Checks whether a node can be used in a forum_ng, based on its content type.
@@ -694,14 +700,14 @@ function forum_ng_block_view($delta = '') {
     ->addTag('node_access');
   switch ($delta) {
     case 'active':
-      $title = t('Active forum_ng topics');
+      $title = t('Active forum topics');
       $query
         ->orderBy('f.last_comment_timestamp', 'DESC')
         ->range(0, config_get('forum_ng.settings', 'forum_ng_block_num_active'));
       break;
 
     case 'new':
-      $title = t('New forum_ng topics');
+      $title = t('New forum topics');
       $query
         ->orderBy('f.created', 'DESC')
         ->range(0, config_get('forum_ng.settings', 'forum_ng_block_num_new'));
@@ -1315,6 +1321,10 @@ function forum_ng_views_pre_render(&$view) {
     $parents = taxonomy_term_load_parents_all($tid);
     unset($parents[0]);
     $parents = array_reverse($parents);
+
+    if ($term = taxonomy_term_load($tid)) {
+      $view->build_info['title'] = $term->name;
+    }
 
     $breadcrumb = array();
     $breadcrumb[] = l(t('Home'), NULL);
