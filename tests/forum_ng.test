@@ -176,7 +176,7 @@ class ForumNGTestCase extends BackdropWebTestCase {
     $posts = trim($posts[0]);
     $this->assertEqual($posts, '6', 'Number of posts found.');
 
-    // Test loading multiple forum nodes on the front page.
+    // Test loading multiple forum nodes on the default layout.
     $this->backdropLogin($this->backdropCreateUser(array('administer content types', 'create forum_ng content')));
     $this->backdropPost('admin/structure/types/manage/forum_ng', array('promote_enabled' => TRUE), t('Save content type'));
     $this->createForumTopic($this->forum, FALSE);
@@ -358,7 +358,6 @@ class ForumNGTestCase extends BackdropWebTestCase {
     $current_settings = taxonomy_vocabulary_load($vid);
 
     // Make sure we actually edited the vocabulary properly.
-    debug($current_settings);
     $this->assertEqual($current_settings->name, $title, 'The name was updated');
     $this->assertEqual($current_settings->description, $description, 'The description was updated');
 
@@ -480,7 +479,6 @@ class ForumNGTestCase extends BackdropWebTestCase {
 
     $type = t('Forum topic');
     $this->assertRaw(t('@type %title has been created.', array('@type' => $type, '%title' => $title)), 'Forum topic was created');
-    $this->assertNoRaw(t('The item %title is a forum container, not a forum.', array('%title' => $forum['name'])), 'No error message was shown');
 
     // Retrieve node object, ensure that the topic was created and in the proper forum.
     $node = $this->backdropGetNodeByTitle($title);

@@ -155,7 +155,7 @@ function forum_ng_menu_local_tasks_alter(&$data, $router_item, $root_path) {
           $links['disallowed'] = array(
             '#theme' => 'menu_local_action',
             '#link' => array(
-              'title' => t('You are not allowed to post new content in the forum_ng.'),
+              'title' => t('You are not allowed to post new content in the forum.'),
             ),
           );
         }
