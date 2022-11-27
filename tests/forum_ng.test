@@ -50,14 +50,6 @@ class ForumNGTestCase extends BackdropWebTestCase {
    */
   protected $nids;
 
-  public static function getInfo() {
-    return array(
-      'name' => 'Forum functionality',
-      'description' => 'Create, view, edit, delete, and change forum entries and verify its consistency in the database.',
-      'group' => 'Forum',
-    );
-  }
-
   function setUp() {
     parent::setUp('taxonomy', 'comment', 'forum_ng');
     // Create users.
@@ -643,14 +635,6 @@ class ForumNGTestCase extends BackdropWebTestCase {
  * Tests the forum index listing.
  */
 class ForumNGIndexTestCase extends BackdropWebTestCase {
-
-  public static function getInfo() {
-    return array(
-      'name' => 'Forum index',
-      'description' => 'Tests the forum index listing.',
-      'group' => 'Forum',
-    );
-  }
 
   function setUp() {
     parent::setUp('taxonomy', 'comment', 'forum_ng');
