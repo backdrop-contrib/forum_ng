@@ -31,14 +31,19 @@ class ForumNGTestCase extends BackdropWebTestCase {
   protected $web_user;
 
   /**
-   * An array representing a container.
+   * An array representing a forum that contains another forum.
    */
   protected $container;
 
   /**
-   * An array representing a forum.
+   * An array representing the contained forum.
    */
   protected $forum;
+
+  /**
+   * An array representing a child of the contained forum.
+   */
+  protected $child_forum;
 
   /**
    * An array representing a root forum.
@@ -152,10 +157,10 @@ class ForumNGTestCase extends BackdropWebTestCase {
     $this->backdropGet('forums');
 
     // Verify row for testing forum.
-    $forum_ng_arg = array(':forum' => 'last');
+    $forum_ng_arg = array(':forum' => 'forum-ng-indent-1');
 
     // Topics cell contains number of topics and number of unread topics.
-    $forum_ng_topics_selector = "//tr[contains(@class,'last')]//td[contains(@class,'views-field-num-topics')]";
+    $forum_ng_topics_selector = "//tr[contains(@class,'forum-ng-indent-1')]//td[contains(@class,'views-field-num-topics')]";
     $topics = $this->xpath($forum_ng_topics_selector);
 
     $topics = trim($topics[0]);
@@ -170,7 +175,7 @@ class ForumNGTestCase extends BackdropWebTestCase {
     // $this->assertFieldByXPath($xpath, $unread_topics, 'Number of unread topics found.');
 
     // Verify total number of posts in forum.
-    $forum_ng_posts_selector = "//tr[contains(@class,'last')]//td[contains(@class,'views-field-num-posts')]";
+    $forum_ng_posts_selector = "//tr[contains(@class,'forum-ng-indent-1')]//td[contains(@class,'views-field-num-posts')]";
     $posts = $this->xpath($forum_ng_posts_selector);
 
     $posts = trim($posts[0]);
@@ -209,6 +214,12 @@ class ForumNGTestCase extends BackdropWebTestCase {
       ),
     ));
     $node->save();
+
+    // Test 3rd level forums display.
+    $child_forum_node = $this->createForumTopic($this->child_forum, FALSE);
+    $this->backdropGet('forums/stream', array('query' => array('forum' => $this->forum['tid'])));
+    $this->assertText('Posted in ' . $this->child_forum['name']);
+
   }
 
   /**
@@ -294,6 +305,8 @@ class ForumNGTestCase extends BackdropWebTestCase {
     $this->assertRaw('Edit forum', 'Followed the link to edit the container');
     // Create forum inside the forum container.
     $this->forum = $this->createForum('forum_ng', $this->container['tid']);
+    // Create child forum inside the forum.
+    $this->child_forum = $this->createForum('forum_ng', $this->forum['tid']);
     // Verify the "edit forum" link exists and functions correctly.
     $this->backdropGet('admin/structure/forum_ng');
     $this->clickLink('edit forum');
