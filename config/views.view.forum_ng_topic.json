@@ -2,11 +2,13 @@
     "_config_name": "views.view.forum_ng_topic",
     "name": "forum_ng_topic",
     "description": "",
+    "module": "forum_ng",
+    "storage": 2,
     "tag": "default",
     "disabled": false,
     "base_table": "node",
     "human_name": "Topics",
-    "module": "forum_ng",
+    "core": null,
     "display": {
         "default": {
             "display_title": "Master",
@@ -165,8 +167,8 @@
                         "label": "",
                         "exclude": 0,
                         "alter": {
-                            "alter_text": 1,
-                            "text": "<div class=\"small\">Posted in <a href='/forums/stream?forum=[forum_ng_taxonomy-tid]'>[forum_ng_taxonomy]</a></div>",
+                            "alter_text": 0,
+                            "text": "",
                             "make_link": 0,
                             "path": "",
                             "absolute": 0,

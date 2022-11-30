@@ -72,6 +72,12 @@ function forum_ng_theme() {
       'base hook' => 'views_view_field',
       'path' => backdrop_get_path('module', 'forum_ng') . '/templates',
     ),
+    'views_view_field__forum_ng_taxonomy' => array(
+      'arguments' => array('view' => NULL, 'field' => NULL, 'row' => NULL),
+      'template' => 'views-view-field--forum-ng-taxonomy',
+      'base hook' => 'views_view_field',
+      'path' => backdrop_get_path('module', 'forum_ng') . '/templates',
+    ),
   );
 }
 
@@ -1262,13 +1268,15 @@ function forum_ng_preprocess_views_view_field(&$variables) {
       $variables['topic_icon'] = theme('forum_ng_icon', array('new_posts' => $topic->new, 'num_posts' => $topic->comment_count, 'comment_mode' => $topic->comment_mode, 'sticky' => $topic->sticky, 'first_new' => $topic->first_new));
     }
     else if ($variables['field']->field == 'forum_ng_taxonomy') {
-      foreach ($variables['view']->result as $delta => $forum) {
-        if ($variables['view']->result[$delta]->field_forum_ng_taxonomy[0]['raw']['tid'] == $forum_tid) {
-          // No need to show "Posted in" the same forum we're viewing.
-          $variables['view']->result[$delta]->field_forum_ng_taxonomy[0]['rendered']['#access'] = FALSE ;
-          $variables['view']->result[$delta]->field_forum_ng_taxonomy[0]['rendered']['#markup'] = '';
+        if ($variables['row']->field_forum_ng_taxonomy[0]['raw']['tid'] == $forum_tid) {
+          $variables['posted'] = NULL;
         }
-      }
+        else {
+          $posted = t('Posted in: ');
+          $subforum = $variables['row']->field_forum_ng_taxonomy[0]['rendered']['#markup'];
+          $subforum_tid = $variables['row']->field_forum_ng_taxonomy[0]['raw']['tid'];
+          $variables['posted'] = $posted . '<a href="/forums/stream?forum=' . $subforum_tid . '">' . $subforum . '</a>';
+        }
     }
   }
 
