@@ -203,7 +203,7 @@ class ForumNGTestCase extends BackdropWebTestCase {
 
     // Make sure constructing a forum node programmatically produces no notices.
     $node = entity_create('node', array (
-      'type' => 'forum',
+      'type' => 'forum_ng',
       'title' => 'Test forum notices',
       'uid' => 1,
       'type' => 'forum_ng',
@@ -218,7 +218,7 @@ class ForumNGTestCase extends BackdropWebTestCase {
     // Test 3rd level forums display.
     $child_forum_node = $this->createForumTopic($this->child_forum, FALSE);
     $this->backdropGet('forums/stream', array('query' => array('forum' => $this->forum['tid'])));
-    $this->assertText('Posted in ' . $this->child_forum['name']);
+    $this->assertText('Posted in: ' . $this->child_forum['name']);
 
   }
 
@@ -287,7 +287,7 @@ class ForumNGTestCase extends BackdropWebTestCase {
     $this->assertEqual(count($elements), 1, 'New forum block not shown on /user.');
 
     // Retrieve forum menu id.
-    $mlid = db_query_range("SELECT mlid FROM {menu_links} WHERE link_path = 'forum' AND menu_name = 'management' AND module = 'system' ORDER BY mlid ASC", 0, 1)->fetchField();
+    $mlid = db_query_range("SELECT mlid FROM {menu_links} WHERE link_path = 'forums' AND menu_name = 'management' AND module = 'system' ORDER BY mlid ASC", 0, 1)->fetchField();
 
     // Add forum to main menu.
     $edit = array();
@@ -539,7 +539,7 @@ class ForumNGTestCase extends BackdropWebTestCase {
     $this->assertTitle($node->title . ' | Backdrop CMS', 'Forum node was displayed');
     $breadcrumb = array(
       l(t('Home'), NULL),
-      l(t('Forums'), 'forum'),
+      l(t('Forums'), 'forums'),
       l($this->container['name'], 'forums/' . $this->container['tid']),
       l($this->forum['name'], 'forums/' . $this->forum['tid']),
     );
